@@ -61,12 +61,15 @@ public class SkyController2Drone {
          */
         void onSkyController2BatteryChargeChanged(int batteryPercentage);
 
+
         /**
          * Called when the battery charge changes
          * Called in the main thread
          * @param batteryPercentage the battery remaining (in percent)
          */
         void onDroneBatteryChargeChanged(int batteryPercentage);
+
+
 
         /**
          * Called when the piloting state changes
@@ -348,6 +351,7 @@ public class SkyController2Drone {
         List<Listener> listenersCpy = new ArrayList<>(mListeners);
         for (Listener listener : listenersCpy) {
             listener.onSkyController2BatteryChargeChanged(battery);
+
         }
     }
 
@@ -483,6 +487,9 @@ public class SkyController2Drone {
                     });
                 }
             }
+
+
+
             // if event received is the skyController2 battery update
             if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_SKYCONTROLLER_SKYCONTROLLERSTATE_BATTERYCHANGED) && (elementDictionary != null)) {
                 ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);

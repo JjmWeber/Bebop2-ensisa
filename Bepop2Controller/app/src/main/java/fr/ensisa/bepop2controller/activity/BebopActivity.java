@@ -362,7 +362,11 @@ public class BebopActivity extends AppCompatActivity {
 
         @Override
         public void onBatteryChargeChanged(int batteryPercentage) {
-            mBatteryLabel.setText(String.format("%d%%", batteryPercentage));
+          //  mBatteryLabel.setText(String.format("%d%%", batteryPercentage));
+        }
+
+        public void altitudeChanged(double altitude) {
+            mBatteryLabel.setText(String.format("%f%%", altitude));
         }
 
         @Override

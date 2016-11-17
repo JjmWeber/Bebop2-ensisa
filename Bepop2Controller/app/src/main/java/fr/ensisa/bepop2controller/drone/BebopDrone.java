@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_COMMON_COMMONSTATE_SENSORSSTATESLISTCHANGED_SENSORNAME_ENUM;
 import com.parrot.arsdk.arcontroller.ARCONTROLLER_DEVICE_STATE_ENUM;
 import com.parrot.arsdk.arcontroller.ARCONTROLLER_DICTIONARY_KEY_ENUM;
 import com.parrot.arsdk.arcontroller.ARCONTROLLER_ERROR_ENUM;
@@ -31,6 +32,7 @@ import com.parrot.arsdk.arutils.ARUtilsException;
 import com.parrot.arsdk.arutils.ARUtilsManager;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class BebopDrone {
@@ -45,6 +47,8 @@ public class BebopDrone {
          * @param state the state of the drone
          */
         void onDroneConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state);
+
+        void altitudeChanged(double altitude);
 
         /**
          * Called when the battery charge changes
@@ -288,6 +292,7 @@ public class BebopDrone {
     public void setFlag(byte flag) {
         if ((mDeviceController != null) && (mState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING))) {
             mDeviceController.getFeatureARDrone3().setPilotingPCMDFlag(flag);
+
         }
     }
 
@@ -352,6 +357,13 @@ public class BebopDrone {
         List<Listener> listenersCpy = new ArrayList<>(mListeners);
         for (Listener listener : listenersCpy) {
             listener.onBatteryChargeChanged(battery);
+        }
+    }
+
+    private void notifyAltitudeChanged(double altitude) {
+        List<Listener> listenersCpy = new ArrayList<>(mListeners);
+        for (Listener listener : listenersCpy) {
+            listener.altitudeChanged(altitude);
         }
     }
 
@@ -458,6 +470,8 @@ public class BebopDrone {
         public void onExtensionStateChanged(ARDeviceController deviceController, ARCONTROLLER_DEVICE_STATE_ENUM newState, ARDISCOVERY_PRODUCT_ENUM product, String name, ARCONTROLLER_ERROR_ENUM error) {
         }
 
+
+
         @Override
         public void onCommandReceived(ARDeviceController deviceController, ARCONTROLLER_DICTIONARY_KEY_ENUM commandKey, ARControllerDictionary elementDictionary) {
             // if event received is the battery update
@@ -514,8 +528,26 @@ public class BebopDrone {
                     });
                 }
             }
+
+            else if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_ALTITUDECHANGED) && (elementDictionary != null)){
+                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
+                if (args != null) {
+                   final double altitude = (double)args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_ALTITUDECHANGED_ALTITUDE);
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                           notifyAltitudeChanged(altitude);
+                        }
+                    });
+                }
+            }
+
+
+
         }
     };
+
+
 
     private final ARDeviceControllerStreamListener mStreamListener = new ARDeviceControllerStreamListener() {
         @Override

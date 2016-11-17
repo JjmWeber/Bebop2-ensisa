@@ -1,122 +1,194 @@
 package fr.ensisa.bepop2controller.discovery;
 
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
-import android.os.IBinder;
-import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
+        import android.content.ComponentName;
+        import android.content.Context;
+        import android.content.Intent;
+        import android.content.IntentFilter;
+        import android.content.ServiceConnection;
+        import android.os.IBinder;
+        import android.support.v4.content.LocalBroadcastManager;
+        import android.util.Log;
 
-import com.parrot.arsdk.ardiscovery.ARDISCOVERY_PRODUCT_ENUM;
-import com.parrot.arsdk.ardiscovery.ARDiscoveryDevice;
-import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceNetService;
-import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
-import com.parrot.arsdk.ardiscovery.ARDiscoveryException;
-import com.parrot.arsdk.ardiscovery.ARDiscoveryService;
-import com.parrot.arsdk.ardiscovery.receivers.ARDiscoveryServicesDevicesListUpdatedReceiver;
-import com.parrot.arsdk.ardiscovery.receivers.ARDiscoveryServicesDevicesListUpdatedReceiverDelegate;
+        import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
+        import com.parrot.arsdk.ardiscovery.ARDiscoveryService;
+        import com.parrot.arsdk.ardiscovery.receivers.ARDiscoveryServicesDevicesListUpdatedReceiver;
+        import com.parrot.arsdk.ardiscovery.receivers.ARDiscoveryServicesDevicesListUpdatedReceiverDelegate;
 
-import java.util.List;
+        import java.util.ArrayList;
+        import java.util.List;
 
-public class DroneDiscoverer implements ARDiscoveryServicesDevicesListUpdatedReceiverDelegate {
-
-    private Context context;
+public class DroneDiscoverer
+{
     private static final String TAG = "DroneDiscoverer";
+
+    public interface Listener {
+        /**
+         * Called when the list of seen drones is updated
+         * Called in the main thread
+         * @param dronesList list of ARDiscoveryDeviceService which represents all available drones
+         *                   Content of this list respect the drone types given in startDiscovery
+         */
+        void onDronesListUpdated(List<ARDiscoveryDeviceService> dronesList);
+    }
+
+    private final List<Listener> mListeners;
+
+
+    private final Context mCtx;
 
     private ARDiscoveryService mArdiscoveryService;
     private ServiceConnection mArdiscoveryServiceConnection;
-    private ARDiscoveryServicesDevicesListUpdatedReceiver mArdiscoveryServicesDevicesListUpdatedReceiver;
+    private final ARDiscoveryServicesDevicesListUpdatedReceiver mArdiscoveryServicesDevicesListUpdatedReceiver;
 
-    public DroneDiscoverer(Context context) {
-        this.context = context;
+    private final List<ARDiscoveryDeviceService> mMatchingDrones;
+
+    private boolean mStartDiscoveryAfterConnection;
+
+    public DroneDiscoverer(Context ctx) {
+        mCtx = ctx;
+
+        mListeners = new ArrayList<>();
+
+        mMatchingDrones = new ArrayList<>();
+
+        mArdiscoveryServicesDevicesListUpdatedReceiver = new ARDiscoveryServicesDevicesListUpdatedReceiver(mDiscoveryListener);
     }
 
-    public void initDiscoveryService() {
+    /**
+     * Add a listener
+     * All callbacks of the interface Listener will be called within this function
+     * Should be called in the main thread
+     * @param listener an object that implements the {@link Listener} interface
+     */
+    public void addListener(Listener listener) {
+        mListeners.add(listener);
+
+        notifyServiceDiscovered(mMatchingDrones);
+    }
+
+    /**
+     * remove a listener from the listener list
+     * @param listener an object that implements the {@link Listener} interface
+     */
+    public void removeListener(Listener listener) {
+        mListeners.remove(listener);
+    }
+
+    /**
+     * Setup the drone discoverer
+     * Should be called before starting discovering
+     */
+    public void setup() {
+        // registerReceivers
+        LocalBroadcastManager localBroadcastMgr = LocalBroadcastManager.getInstance(mCtx);
+        localBroadcastMgr.registerReceiver(mArdiscoveryServicesDevicesListUpdatedReceiver,
+                new IntentFilter(ARDiscoveryService.kARDiscoveryServiceNotificationServicesDevicesListUpdated));
+
         // create the service connection
-        if (mArdiscoveryServiceConnection == null)
+        if (mArdiscoveryServiceConnection == null) {
             mArdiscoveryServiceConnection = new ServiceConnection() {
                 @Override
-                public void onServiceConnected(ComponentName name, IBinder service)
-                {
+                public void onServiceConnected(ComponentName name, IBinder service) {
                     mArdiscoveryService = ((ARDiscoveryService.LocalBinder) service).getService();
-                    startDiscovery();
+
+                    if (mStartDiscoveryAfterConnection) {
+                        startDiscovering();
+                        mStartDiscoveryAfterConnection = false;
+                    }
                 }
 
                 @Override
-                public void onServiceDisconnected(ComponentName name)
-                {
+                public void onServiceDisconnected(ComponentName name) {
                     mArdiscoveryService = null;
                 }
             };
+        }
 
         if (mArdiscoveryService == null) {
             // if the discovery service doesn't exists, bind to it
-            Intent i = new Intent(context, ARDiscoveryService.class);
-            context.bindService(i, mArdiscoveryServiceConnection, Context.BIND_AUTO_CREATE);
-        } else
-            // if the discovery service already exists, start discovery
-            startDiscovery();
-    }
-
-    private void startDiscovery() {
-        if (mArdiscoveryService != null)
-            mArdiscoveryService.start();
-    }
-
-    private void registerReceivers() {
-        mArdiscoveryServicesDevicesListUpdatedReceiver = new ARDiscoveryServicesDevicesListUpdatedReceiver(this);
-        LocalBroadcastManager localBroadcastMgr = LocalBroadcastManager.getInstance(context);
-        localBroadcastMgr.registerReceiver(mArdiscoveryServicesDevicesListUpdatedReceiver, new IntentFilter(ARDiscoveryService.kARDiscoveryServiceNotificationServicesDevicesListUpdated));
-    }
-
-    @Override
-    public void onServicesDevicesListUpdated() {
-        Log.d(TAG, "onServicesDevicesListUpdated ...");
-
-        if (mArdiscoveryService != null) {
-            List<ARDiscoveryDeviceService> deviceList = mArdiscoveryService.getDeviceServicesArray();
-
-            // Do what you want with the device list
+            Intent i = new Intent(mCtx, ARDiscoveryService.class);
+            mCtx.bindService(i, mArdiscoveryServiceConnection, Context.BIND_AUTO_CREATE);
         }
     }
 
-    private ARDiscoveryDevice createDiscoveryDevice(ARDiscoveryDeviceService service) {
-        ARDiscoveryDevice device = null;
-        if ((service != null) && (ARDISCOVERY_PRODUCT_ENUM.ARDISCOVERY_PRODUCT_ARDRONE.equals(
-                ARDiscoveryService.getProductFromProductID(service.getProductID())))) {
-            try {
-                device = new ARDiscoveryDevice();
-                ARDiscoveryDeviceNetService netDeviceService = (ARDiscoveryDeviceNetService) service.getDevice();
-                device.initWifi(ARDISCOVERY_PRODUCT_ENUM.ARDISCOVERY_PRODUCT_ARDRONE, netDeviceService.getName(), netDeviceService.getIp(), netDeviceService.getPort());
-            } catch (ARDiscoveryException e) {
-                e.printStackTrace();
-                Log.e(TAG, "Error: " + e.getError());
-            }
-        }
-
-        return device;
-    }
-
-    private void unregisterReceivers() {
-        LocalBroadcastManager localBroadcastMgr = LocalBroadcastManager.getInstance(context);
-        localBroadcastMgr.unregisterReceiver(mArdiscoveryServicesDevicesListUpdatedReceiver);
-    }
-
-    private void closeServices() {
+    /**
+     * Cleanup the object
+     * Should be called when the object is not used anymore
+     */
+    public void cleanup() {
+        stopDiscovering();
+        //close discovery service
         Log.d(TAG, "closeServices ...");
 
-        if (mArdiscoveryService != null)
+        if (mArdiscoveryService != null) {
             new Thread(new Runnable() {
                 @Override
-                public void run()
-                {
+                public void run() {
                     mArdiscoveryService.stop();
-                    context.unbindService(mArdiscoveryServiceConnection);
+
+                    mCtx.unbindService(mArdiscoveryServiceConnection);
                     mArdiscoveryService = null;
                 }
             }).start();
+        }
+
+        // unregister receivers
+        LocalBroadcastManager localBroadcastMgr = LocalBroadcastManager.getInstance(mCtx);
+        localBroadcastMgr.unregisterReceiver(mArdiscoveryServicesDevicesListUpdatedReceiver);
     }
 
+    /**
+     * Start discovering Parrot drones
+     * For Wifi drones, the device should be on the drone's network
+     * When drones will be discovered, you will be notified through {@link Listener#onDronesListUpdated(List)}
+     */
+    public void startDiscovering() {
+        if (mArdiscoveryService != null) {
+            Log.i(TAG, "Start discovering");
+            mDiscoveryListener.onServicesDevicesListUpdated();
+            mArdiscoveryService.start();
+            mStartDiscoveryAfterConnection = false;
+        } else {
+            mStartDiscoveryAfterConnection = true;
+        }
+    }
+
+    /**
+     * Stop discovering Parrot drones
+     */
+    public void stopDiscovering() {
+        if (mArdiscoveryService != null) {
+            Log.i(TAG, "Stop discovering");
+            mArdiscoveryService.stop();
+        }
+        mStartDiscoveryAfterConnection = false;
+    }
+
+    private void notifyServiceDiscovered(List<ARDiscoveryDeviceService> dronesList) {
+        List<Listener> listenersCpy = new ArrayList<>(mListeners);
+        for (Listener listener : listenersCpy) {
+            listener.onDronesListUpdated(dronesList);
+        }
+    }
+
+    private final ARDiscoveryServicesDevicesListUpdatedReceiverDelegate mDiscoveryListener =
+            new ARDiscoveryServicesDevicesListUpdatedReceiverDelegate() {
+                @Override
+                public void onServicesDevicesListUpdated() {
+                    if (mArdiscoveryService != null) {
+                        // clear current list
+                        mMatchingDrones.clear();
+                        List<ARDiscoveryDeviceService> deviceList = mArdiscoveryService.getDeviceServicesArray();
+
+                        if (deviceList != null)
+                        {
+                            for (ARDiscoveryDeviceService service : deviceList)
+                            {
+                                mMatchingDrones.add(service);
+                            }
+                        }
+                        notifyServiceDiscovered(mMatchingDrones);
+                    }
+                }
+            };
 }

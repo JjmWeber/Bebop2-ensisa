@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">Bepop2 Controller </string>
+    <string name="app_name">Bebop2 Controller</string>
+    <string name="main_instructions">Please choose the device you want to use :</string>
+    <string name="device_not_supported">Not supported device</string>
 </resources>

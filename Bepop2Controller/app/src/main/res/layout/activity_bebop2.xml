@@ -21,17 +21,8 @@
         android:id="@+id/linearLayout">
 
         <TextView
-            android:text="Drone Battery : -"
-            android:id="@+id/droneBatteryLabel"
-            android:layout_weight="1"
-            android:layout_height="18dp"
-            android:background="@color/background"
-            android:textColor="@color/primary_light"
-            android:layout_width="wrap_content" />
-
-        <TextView
-            android:text="Sky Battery : -"
-            android:id="@+id/skyBatteryLabel"
+            android:text="Battery : -"
+            android:id="@+id/batteryLabel"
             android:layout_weight="1"
             android:layout_height="18dp"
             android:background="@color/background"
@@ -48,6 +39,70 @@
             android:layout_width="wrap_content" />
 
     </LinearLayout>
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_action_backward"
+        android:id="@+id/backwardButton"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="64dp"
+        android:background="@android:color/transparent" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_action_forward"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/forwardButton"
+        android:layout_marginBottom="128dp"
+        android:layout_marginStart="64dp"
+        android:background="@android:color/transparent" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_action_left"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/leftButton"
+        android:layout_marginBottom="64dp"
+        android:background="@android:color/transparent" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_action_right"
+        android:id="@+id/rightButton"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="64dp"
+        android:layout_marginStart="128dp"
+        android:background="@android:color/transparent" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_action_anticlockwise"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:id="@+id/anticlockwiseButton"
+        android:layout_marginEnd="128dp"
+        android:layout_marginBottom="64dp"
+        android:background="@android:color/transparent" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_action_up"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:id="@+id/upButton"
+        android:layout_marginBottom="128dp"
+        android:layout_marginEnd="64dp"
+        android:background="@android:color/transparent" />
 
     <ImageButton
         android:layout_width="wrap_content"
@@ -99,16 +154,23 @@
         android:layout_centerHorizontal="true"
         android:background="@android:color/transparent" />
 
-    <TextView
+    <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/droneConnectionLabel"
-        android:textSize="24sp"
-        android:text="Waiting for a drone"
-        android:textAlignment="center"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:textColor="@color/primary" />
+        app:srcCompat="@drawable/ic_action_down"
+        android:id="@+id/downButton"
+        android:layout_alignParentBottom="true"
+        android:layout_toStartOf="@+id/clockwiseButton"
+        android:background="@android:color/transparent" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_action_clockwise"
+        android:id="@+id/clockwiseButton"
+        android:layout_above="@+id/downButton"
+        android:layout_alignParentEnd="true"
+        android:background="@android:color/transparent" />
 
     <ImageButton
         android:layout_width="wrap_content"

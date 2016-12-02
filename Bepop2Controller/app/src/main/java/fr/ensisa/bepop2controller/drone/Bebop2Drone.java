@@ -43,9 +43,9 @@ public class Bebop2Drone {
 
         void onBatteryChargeChanged(int battery);
 
-        void onPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state);
-
         void onAltitudeChanged(double altitude);
+
+        void onPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state);
 
         void onPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error);
 
@@ -67,6 +67,7 @@ public class Bebop2Drone {
     private SDCardModule sdCardModule;
     private ARCONTROLLER_DEVICE_STATE_ENUM state;
     private ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM flyingState;
+
     private String currentRunId;
 
     public Bebop2Drone(Context context, @NonNull ARDiscoveryDeviceService deviceService) {
@@ -335,10 +336,10 @@ public class Bebop2Drone {
         @Override
         public void onStateChanged(ARDeviceController deviceController, ARCONTROLLER_DEVICE_STATE_ENUM newState, ARCONTROLLER_ERROR_ENUM error) {
             state = newState;
-            if(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING.equals(state))
+            /*if(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING.equals(state))
                 Bebop2Drone.this.deviceController.getFeatureARDrone3().sendMediaStreamingVideoEnable((byte) 1);
             else if(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_STOPPED.equals(state))
-                sdCardModule.cancelGetFlightMedias();
+                sdCardModule.cancelGetFlightMedias();*/
             handler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -367,6 +368,19 @@ public class Bebop2Drone {
                     });
                 }
             }
+            // if event received is the altitude update
+            else if((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_ALTITUDECHANGED) && (elementDictionary != null)){
+                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
+                if(args != null) {
+                    final double altitude = (double)args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_ALTITUDECHANGED_ALTITUDE);
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyAltitudeChanged(altitude);
+                        }
+                    });
+                }
+            }
             // if event received is the flying state update
             else if((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED) && (elementDictionary != null)) {
                 ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
@@ -377,19 +391,6 @@ public class Bebop2Drone {
                         public void run() {
                             flyingState = state;
                             notifyPilotingStateChanged(state);
-                        }
-                    });
-                }
-            }
-            // if event received is the altitude update
-            else if((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_ALTITUDECHANGED) && (elementDictionary != null)){
-                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
-                if(args != null) {
-                    final double altitude = (double)args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_ALTITUDECHANGED_ALTITUDE);
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            notifyAltitudeChanged(altitude);
                         }
                     });
                 }

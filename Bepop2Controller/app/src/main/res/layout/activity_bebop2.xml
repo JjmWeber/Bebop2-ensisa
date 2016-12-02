@@ -2,10 +2,11 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     tools:context="fr.ensisa.bepop2controller.activity.Bebop2Activity"
-    android:id="@+id/piloting_view">
+
+    android:id="@+id/bebop2ActivityLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
 
     <fr.ensisa.bepop2controller.view.Bebop2VideoView
         android:id="@+id/videoView"
@@ -13,172 +14,335 @@
         android:layout_height="match_parent"/>
 
     <LinearLayout
+        android:id="@+id/barLayout"
         android:orientation="horizontal"
+        android:foreground="@color/bar_background"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
-        android:id="@+id/linearLayout">
+        android:layout_alignParentTop="true" >
+
+        <ImageView
+            android:id="@+id/batteryIconView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_battery_100"
+            tools:ignore="ContentDescription" />
 
         <TextView
-            android:text="Battery : -"
-            android:id="@+id/batteryLabel"
-            android:layout_weight="1"
-            android:layout_height="18dp"
-            android:background="@color/background"
-            android:textColor="@color/primary_light"
-            android:layout_width="wrap_content" />
+            android:id="@+id/batteryTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" - %"
+            android:textColor="@color/hud_color_light"
+            android:layout_marginEnd="20dp"
+            tools:ignore="HardcodedText" />
+
+        <ImageView
+            android:id="@+id/altitudeIconView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_altitude"
+            tools:ignore="ContentDescription" />
 
         <TextView
-            android:text="Altitude : -"
-            android:id="@+id/altitudeLabel"
-            android:layout_weight="1"
-            android:layout_height="18dp"
-            android:background="@color/background"
-            android:textColor="@color/primary_light"
-            android:layout_width="wrap_content" />
+            android:id="@+id/altitudeTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" - m"
+            android:textColor="@color/hud_color_light"
+            android:layout_marginEnd="20dp"
+            tools:ignore="HardcodedText" />
+
+        <ImageView
+            android:id="@+id/velocityIconView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_velocity"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:id="@+id/velocityTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="  - m/s"
+            android:textColor="@color/hud_color_light"
+            android:layout_marginEnd="20dp"
+            tools:ignore="HardcodedText" />
+
 
     </LinearLayout>
 
-    <ImageButton
+    <ImageView
+        android:id="@+id/leftJoystickUpButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_action_backward"
-        android:id="@+id/backwardButton"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="64dp"
-        android:background="@android:color/transparent" />
-
-    <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_action_forward"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/forwardButton"
-        android:layout_marginBottom="128dp"
-        android:layout_marginStart="64dp"
-        android:background="@android:color/transparent" />
+        android:layout_marginStart="60dp"
+        android:layout_marginBottom="110dp"
+        app:srcCompat="@drawable/ic_forward"
+        tools:ignore="ContentDescription" />
 
-    <ImageButton
+    <ImageView
+        android:id="@+id/leftJoystickBackButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_action_left"
+        android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/leftButton"
-        android:layout_marginBottom="64dp"
-        android:background="@android:color/transparent" />
+        android:layout_marginStart="60dp"
+        android:layout_marginBottom="10dp"
+        app:srcCompat="@drawable/ic_backward"
+        tools:ignore="ContentDescription" />
 
-    <ImageButton
+    <ImageView
+        android:id="@+id/leftJoystickLeftButton"
+        app:srcCompat="@drawable/ic_left"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_action_right"
-        android:id="@+id/rightButton"
+        android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="64dp"
-        android:layout_marginStart="128dp"
-        android:background="@android:color/transparent" />
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="60dp"
+        tools:ignore="ContentDescription" />
 
-    <ImageButton
+    <ImageView
+        android:id="@+id/leftJoystickRightButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_action_anticlockwise"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="110dp"
+        android:layout_marginBottom="60dp"
+        app:srcCompat="@drawable/ic_right"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/rightJoystickUpButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:id="@+id/anticlockwiseButton"
-        android:layout_marginEnd="128dp"
-        android:layout_marginBottom="64dp"
-        android:background="@android:color/transparent" />
+        android:layout_marginBottom="110dp"
+        android:layout_marginEnd="60dp"
+        app:srcCompat="@drawable/ic_upward"
+        tools:ignore="ContentDescription" />
 
-    <ImageButton
+    <ImageView
+        android:id="@+id/rightJoystickDownButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_action_up"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:id="@+id/upButton"
-        android:layout_marginBottom="128dp"
-        android:layout_marginEnd="64dp"
-        android:background="@android:color/transparent" />
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="60dp"
+        app:srcCompat="@drawable/ic_downward"
+        tools:ignore="ContentDescription" />
 
-    <ImageButton
+    <ImageView
+        android:id="@+id/rightJoystickLeftButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_action_camera"
-        android:layout_alignParentTop="true"
-        android:layout_toStartOf="@+id/homeButton"
-        android:id="@+id/cameraButton"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="34dp"
-        android:background="@android:color/transparent" />
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="70dp"
+        android:layout_marginEnd="120dp"
+        app:srcCompat="@drawable/ic_left_rotation"
+        tools:ignore="ContentDescription" />
 
-    <ImageButton
+    <ImageView
+        android:id="@+id/rightJoystickRightButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_action_video"
-        android:id="@+id/videoButton"
-        android:layout_alignParentTop="true"
-        android:layout_toEndOf="@+id/homeButton"
-        android:layout_marginTop="34dp"
-        android:layout_marginStart="16dp"
-        android:background="@android:color/transparent" />
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="70dp"
+        android:layout_marginEnd="20dp"
+        app:srcCompat="@drawable/ic_right_rotation"
+        tools:ignore="ContentDescription" />
 
-    <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_action_warning"
-        android:id="@+id/emergencyButton"
-        android:layout_below="@+id/linearLayout"
+    <io.github.controlwear.virtual.joystick.android.JoystickView
+        android:id="@+id/leftJoystick"
+        android:layout_width="210dp"
+        android:layout_height="210dp"
         android:layout_alignParentStart="true"
-        android:background="@android:color/transparent" />
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="-20dp"
+        android:layout_marginBottom="-20dp"
+        app:JV_buttonColor="@color/hud_color_light_transparent"
+        app:JV_borderColor="@color/hud_color_light_transparent"
+        app:JV_backgroundColor="@color/joystick_background"
+        app:JV_borderWidth="2dp"
+        app:JV_fixedCenter="true" />
 
-    <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_action_take_off"
+    <io.github.controlwear.virtual.joystick.android.JoystickView
+        android:id="@+id/rightJoystick"
+        android:layout_width="210dp"
+        android:layout_height="210dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="-20dp"
+        android:layout_marginEnd="-20dp"
+        app:JV_buttonColor="@color/hud_color_light_transparent"
+        app:JV_borderColor="@color/hud_color_light_transparent"
+        app:JV_backgroundColor="@color/joystick_background"
+        app:JV_borderWidth="2dp"
+        app:JV_fixedCenter="true" />
+
+    <Button
         android:id="@+id/takeOffAndLandButton"
-        android:layout_alignParentBottom="true"
+        android:layout_width="100dp"
+        android:layout_height="40dp"
+        android:layout_margin="10dp"
+        android:layout_below="@+id/barLayout"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="16dp"
-        android:background="@android:color/transparent" />
+        android:background="@drawable/style_take_off_and_land"
+        android:textStyle="normal|bold"
+        android:textColor="@color/hud_color_light"
+        android:text="@string/take_off" />
 
-    <ImageButton
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/emergencyButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_action_home"
+        android:layout_below="@+id/barLayout"
+        android:layout_alignParentStart="true"
+        android:layout_margin="10dp"
+        android:clickable="true"
+        app:fabSize="mini"
+        app:backgroundTint="@color/icon_background"
+        app:srcCompat="@drawable/ic_emergency" />
+
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/homeButton"
-        android:layout_below="@+id/linearLayout"
-        android:layout_centerHorizontal="true"
-        android:background="@android:color/transparent" />
-
-    <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_action_down"
-        android:id="@+id/downButton"
-        android:layout_alignParentBottom="true"
-        android:layout_toStartOf="@+id/clockwiseButton"
-        android:background="@android:color/transparent" />
+        android:layout_below="@+id/barLayout"
+        android:layout_toEndOf="@+id/emergencyButton"
+        android:layout_margin="10dp"
+        android:clickable="true"
+        app:fabSize="mini"
+        app:backgroundTint="@color/icon_background"
+        app:srcCompat="@drawable/ic_home" />
 
-    <ImageButton
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/flipButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_action_clockwise"
-        android:id="@+id/clockwiseButton"
-        android:layout_above="@+id/downButton"
+        android:layout_below="@+id/barLayout"
+        android:layout_toEndOf="@+id/homeButton"
+        android:layout_margin="10dp"
+        android:clickable="true"
+        app:fabSize="mini"
+        app:backgroundTint="@color/icon_background"
+        app:srcCompat="@drawable/ic_flip" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/gpsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/barLayout"
+        android:layout_toEndOf="@+id/flipButton"
+        android:layout_margin="10dp"
+        android:clickable="true"
+        app:fabSize="mini"
+        app:backgroundTint="@color/icon_background"
+        app:srcCompat="@drawable/ic_gps" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/cameraButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/barLayout"
         android:layout_alignParentEnd="true"
-        android:background="@android:color/transparent" />
+        android:layout_margin="10dp"
+        android:clickable="true"
+        app:fabSize="mini"
+        app:backgroundTint="@color/icon_background"
+        app:srcCompat="@drawable/ic_camera" />
 
-    <ImageButton
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/videoButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_action_download"
-        android:layout_below="@+id/linearLayout"
-        android:layout_alignParentEnd="true"
-        android:id="@+id/downloadbutton"
-        android:background="@android:color/transparent" />
+        android:layout_below="@+id/barLayout"
+        android:layout_toStartOf="@+id/cameraButton"
+        android:layout_margin="10dp"
+        android:clickable="true"
+        app:fabSize="mini"
+        app:backgroundTint="@color/icon_background"
+        app:srcCompat="@drawable/ic_video" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/panoramaButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/barLayout"
+        android:layout_toStartOf="@+id/videoButton"
+        android:layout_margin="10dp"
+        android:clickable="true"
+        app:fabSize="mini"
+        app:backgroundTint="@color/icon_background"
+        app:srcCompat="@drawable/ic_panorama" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/downloadButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/barLayout"
+        android:layout_toStartOf="@+id/panoramaButton"
+        android:layout_margin="10dp"
+        android:clickable="true"
+        app:fabSize="mini"
+        app:backgroundTint="@color/icon_background"
+        app:srcCompat="@drawable/ic_download" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/backFlipButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/flipButton"
+        android:layout_below="@+id/flipButton"
+        android:clickable="true"
+        android:visibility="invisible"
+        app:fabSize="mini"
+        app:backgroundTint="@color/icon_background"
+        app:srcCompat="@drawable/ic_back_flip" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/rightFlipButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/backFlipButton"
+        android:layout_below="@+id/backFlipButton"
+        android:clickable="true"
+        android:visibility="invisible"
+        app:fabSize="mini"
+        app:backgroundTint="@color/icon_background"
+        app:srcCompat="@drawable/ic_right_flip" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/leftFlipButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toStartOf="@+id/backFlipButton"
+        android:layout_below="@+id/backFlipButton"
+        android:clickable="true"
+        android:visibility="invisible"
+        app:fabSize="mini"
+        app:backgroundTint="@color/icon_background"
+        app:srcCompat="@drawable/ic_left_flip" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/frontFlipButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/leftFlipButton"
+        android:layout_below="@+id/rightFlipButton"
+        android:clickable="true"
+        android:visibility="invisible"
+        app:fabSize="mini"
+        app:backgroundTint="@color/icon_background"
+        app:srcCompat="@drawable/ic_front_flip" />
 
 </RelativeLayout>

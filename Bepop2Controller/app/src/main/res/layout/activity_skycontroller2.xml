@@ -2,121 +2,275 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     tools:context="fr.ensisa.bepop2controller.activity.Bebop2Activity"
-    android:id="@+id/piloting_view">
+
+    android:id="@+id/skycontroller2ActivityLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
 
     <fr.ensisa.bepop2controller.view.Bebop2VideoView
         android:id="@+id/videoView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
+    <RelativeLayout
+        android:id="@+id/loadingLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center" >
+
+        <ProgressBar
+            android:id="@+id/loadingAnimation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/hud_color_light" />
+
+    </RelativeLayout>
+
     <LinearLayout
+        android:id="@+id/barLayout"
         android:orientation="horizontal"
+        android:foreground="@color/bar_background"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
-        android:id="@+id/linearLayout">
+        android:layout_alignParentTop="true" >
+
+        <ImageView
+            android:id="@+id/droneIconView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_drone"
+            tools:ignore="ContentDescription" />
+
+        <ImageView
+            android:id="@+id/droneBatteryIconView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_battery_100"
+            tools:ignore="ContentDescription" />
 
         <TextView
-            android:text="Drone Battery : -"
-            android:id="@+id/droneBatteryLabel"
-            android:layout_weight="1"
-            android:layout_height="18dp"
-            android:background="@color/background"
-            android:textColor="@color/primary_light"
-            android:layout_width="wrap_content" />
+            android:id="@+id/droneBatteryTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" - %"
+            android:textColor="@color/hud_color_light"
+            android:layout_marginEnd="20dp"
+            tools:ignore="HardcodedText" />
+
+        <ImageView
+            android:id="@+id/controllerIconView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_controller"
+            tools:ignore="ContentDescription" />
+
+        <ImageView
+            android:id="@+id/controllerBatteryIconView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_battery_100"
+            tools:ignore="ContentDescription" />
 
         <TextView
-            android:text="Sky Battery : -"
-            android:id="@+id/skyBatteryLabel"
-            android:layout_weight="1"
-            android:layout_height="18dp"
-            android:background="@color/background"
-            android:textColor="@color/primary_light"
-            android:layout_width="wrap_content" />
+            android:id="@+id/controllerBatteryTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" - %"
+            android:textColor="@color/hud_color_light"
+            android:layout_marginEnd="20dp"
+            tools:ignore="HardcodedText" />
+
+        <ImageView
+            android:id="@+id/altitudeIconView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_altitude"
+            tools:ignore="ContentDescription" />
 
         <TextView
-            android:text="Altitude : -"
-            android:id="@+id/altitudeLabel"
-            android:layout_weight="1"
-            android:layout_height="18dp"
-            android:background="@color/background"
-            android:textColor="@color/primary_light"
-            android:layout_width="wrap_content" />
+            android:id="@+id/altitudeTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" - m"
+            android:textColor="@color/hud_color_light"
+            android:layout_marginEnd="20dp"
+            tools:ignore="HardcodedText" />
+
+        <ImageView
+            android:id="@+id/velocityIconView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_velocity"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:id="@+id/velocityTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="  - m/s"
+            android:textColor="@color/hud_color_light"
+            android:layout_marginEnd="20dp"
+            tools:ignore="HardcodedText" />
 
     </LinearLayout>
 
-    <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_action_camera"
-        android:layout_alignParentTop="true"
-        android:layout_toStartOf="@+id/homeButton"
-        android:id="@+id/cameraButton"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="34dp"
-        android:background="@android:color/transparent" />
-
-    <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_action_video"
-        android:id="@+id/videoButton"
-        android:layout_alignParentTop="true"
-        android:layout_toEndOf="@+id/homeButton"
-        android:layout_marginTop="34dp"
-        android:layout_marginStart="16dp"
-        android:background="@android:color/transparent" />
-
-    <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_action_warning"
-        android:id="@+id/emergencyButton"
-        android:layout_below="@+id/linearLayout"
-        android:layout_alignParentStart="true"
-        android:background="@android:color/transparent" />
-
-    <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_action_take_off"
+    <Button
         android:id="@+id/takeOffAndLandButton"
-        android:layout_alignParentBottom="true"
+        android:layout_width="100dp"
+        android:layout_height="40dp"
+        android:layout_margin="10dp"
+        android:layout_below="@+id/barLayout"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="16dp"
-        android:background="@android:color/transparent" />
+        android:background="@drawable/style_take_off_and_land"
+        android:textStyle="normal|bold"
+        android:textColor="@color/hud_color_light"
+        android:text="@string/take_off" />
 
-    <ImageButton
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/emergencyButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_action_home"
+        android:layout_below="@+id/barLayout"
+        android:layout_alignParentStart="true"
+        android:layout_margin="10dp"
+        android:clickable="true"
+        app:fabSize="mini"
+        app:backgroundTint="@color/icon_background"
+        app:srcCompat="@drawable/ic_emergency" />
+
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/homeButton"
-        android:layout_below="@+id/linearLayout"
-        android:layout_centerHorizontal="true"
-        android:background="@android:color/transparent" />
-
-    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/droneConnectionLabel"
-        android:textSize="24sp"
-        android:text="Waiting for a drone"
-        android:textAlignment="center"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:textColor="@color/primary" />
+        android:layout_below="@+id/barLayout"
+        android:layout_toEndOf="@+id/emergencyButton"
+        android:layout_margin="10dp"
+        android:clickable="true"
+        app:fabSize="mini"
+        app:backgroundTint="@color/icon_background"
+        app:srcCompat="@drawable/ic_home" />
 
-    <ImageButton
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/flipButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_action_download"
-        android:layout_below="@+id/linearLayout"
+        android:layout_below="@+id/barLayout"
+        android:layout_toEndOf="@+id/homeButton"
+        android:layout_margin="10dp"
+        android:clickable="true"
+        app:fabSize="mini"
+        app:backgroundTint="@color/icon_background"
+        app:srcCompat="@drawable/ic_flip" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/gpsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/barLayout"
+        android:layout_toEndOf="@+id/flipButton"
+        android:layout_margin="10dp"
+        android:clickable="true"
+        app:fabSize="mini"
+        app:backgroundTint="@color/icon_background"
+        app:srcCompat="@drawable/ic_gps" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/cameraButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/barLayout"
         android:layout_alignParentEnd="true"
-        android:id="@+id/downloadbutton"
-        android:background="@android:color/transparent" />
+        android:layout_margin="10dp"
+        android:clickable="true"
+        app:fabSize="mini"
+        app:backgroundTint="@color/icon_background"
+        app:srcCompat="@drawable/ic_camera" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/videoButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/barLayout"
+        android:layout_toStartOf="@+id/cameraButton"
+        android:layout_margin="10dp"
+        android:clickable="true"
+        app:fabSize="mini"
+        app:backgroundTint="@color/icon_background"
+        app:srcCompat="@drawable/ic_video" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/panoramaButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/barLayout"
+        android:layout_toStartOf="@+id/videoButton"
+        android:layout_margin="10dp"
+        android:clickable="true"
+        app:fabSize="mini"
+        app:backgroundTint="@color/icon_background"
+        app:srcCompat="@drawable/ic_panorama" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/downloadButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/barLayout"
+        android:layout_toStartOf="@+id/panoramaButton"
+        android:layout_margin="10dp"
+        android:clickable="true"
+        app:fabSize="mini"
+        app:backgroundTint="@color/icon_background"
+        app:srcCompat="@drawable/ic_download" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/backFlipButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/flipButton"
+        android:layout_below="@+id/flipButton"
+        android:clickable="true"
+        android:visibility="invisible"
+        app:fabSize="mini"
+        app:backgroundTint="@color/icon_background"
+        app:srcCompat="@drawable/ic_back_flip" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/rightFlipButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/backFlipButton"
+        android:layout_below="@+id/backFlipButton"
+        android:clickable="true"
+        android:visibility="invisible"
+        app:fabSize="mini"
+        app:backgroundTint="@color/icon_background"
+        app:srcCompat="@drawable/ic_right_flip" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/leftFlipButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toStartOf="@+id/backFlipButton"
+        android:layout_below="@+id/backFlipButton"
+        android:clickable="true"
+        android:visibility="invisible"
+        app:fabSize="mini"
+        app:backgroundTint="@color/icon_background"
+        app:srcCompat="@drawable/ic_left_flip" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/frontFlipButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/leftFlipButton"
+        android:layout_below="@+id/rightFlipButton"
+        android:clickable="true"
+        android:visibility="invisible"
+        app:fabSize="mini"
+        app:backgroundTint="@color/icon_background"
+        app:srcCompat="@drawable/ic_front_flip" />
 
 </RelativeLayout>

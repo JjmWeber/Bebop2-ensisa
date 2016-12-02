@@ -1,30 +1,105 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="fr.ensisa.bepop2controller.activity.MainActivity">
 
     <TextView
-        android:text="@string/main_instructions"
+        android:text="Bebop2 Controller"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/mainInstructions"
+        android:id="@+id/textView"
         android:textSize="24sp"
-        android:textColor="@android:color/black"
-        android:layout_margin="8dp"
-        android:textAllCaps="false"
         android:textAlignment="center"
-        android:textStyle="normal|italic" />
+        android:textStyle="normal|bold"
+        android:textAllCaps="false"
+        android:textColor="@color/accent"
+        android:layout_margin="10dp" />
 
-    <ListView
-        android:id="@+id/deviceList"
-        android:layout_height="wrap_content"
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_below="@+id/mainInstructions"
-        android:layout_alignParentStart="true">
-    </ListView>
+        android:layout_height="match_parent"
+        android:layout_below="@+id/textView">
+
+        <ListView
+            android:id="@+id/deviceList"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_below="@+id/mainInstructions"
+            android:layout_alignParentStart="true"
+            android:layout_weight="1">
+        </ListView>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:elevation="1dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:srcCompat="@mipmap/pic_products"
+                android:id="@+id/imageView6"
+                android:layout_weight="1" />
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <Button
+                        android:text="Refresh"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/button11"
+                        android:layout_weight="1" />
+
+                    <Button
+                        android:text="Exit"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/button10"
+                        android:layout_weight="1" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <Button
+                        android:text="Help"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/button13"
+                        android:layout_weight="1" />
+
+                    <Button
+                        android:text="About"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/button12"
+                        android:layout_weight="1" />
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+    </LinearLayout>
+
 </RelativeLayout>

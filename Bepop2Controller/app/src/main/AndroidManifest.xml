@@ -1,34 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="fr.ensisa.bepop2controller"
-          xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="fr.ensisa.bepop2controller">
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-    <uses-feature android:name="android.hardware.usb.accessory" android:required="false"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <uses-feature
+        android:name="android.hardware.usb.accessory"
+        android:required="false" />
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/ic_drone"
+        android:icon="@mipmap/pic_icon"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="fr.ensisa.bepop2controller.activity.MainActivity"
+            android:name=".activity.MainActivity"
             android:screenOrientation="landscape">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
-            android:name="fr.ensisa.bepop2controller.activity.Bebop2Activity"
-            android:screenOrientation="landscape"/>
-
+            android:name=".activity.Bebop2Activity"
+            android:screenOrientation="landscape" />
         <activity
-            android:name="fr.ensisa.bepop2controller.activity.SkyController2Activity"
-            android:screenOrientation="landscape"/>
-
+            android:name=".activity.SkyController2Activity"
+            android:screenOrientation="landscape" />
     </application>
 
 </manifest>

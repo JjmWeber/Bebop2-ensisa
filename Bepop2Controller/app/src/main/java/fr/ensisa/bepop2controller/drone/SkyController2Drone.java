@@ -48,6 +48,8 @@ public class SkyController2Drone {
 
         void onDroneBatteryChargeChanged(int battery);
 
+        void onAltitudeChanged(double altitude);
+
         void onPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state);
 
         void onPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error);
@@ -64,7 +66,6 @@ public class SkyController2Drone {
     }
 
     private final List<Listener> listeners;
-
     private final Handler handler;
 
     private ARDeviceController deviceController;
@@ -250,6 +251,12 @@ public class SkyController2Drone {
             listener.onDroneBatteryChargeChanged(battery);
     }
 
+    private void notifyAltitudeChanged(double altitude) {
+        List<Listener> listeners = new ArrayList<>(this.listeners);
+        for (Listener listener : listeners)
+            listener.onAltitudeChanged(altitude);
+    }
+
     private void notifyPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state) {
         List<Listener> listeners = new ArrayList<>(this.listeners);
         for (Listener listener : listeners)
@@ -368,9 +375,8 @@ public class SkyController2Drone {
                     });
                 }
             }
-
             // if event received is the skyController2 battery update
-            if((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_SKYCONTROLLER_SKYCONTROLLERSTATE_BATTERYCHANGED) && (elementDictionary != null)) {
+            else if((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_SKYCONTROLLER_SKYCONTROLLERSTATE_BATTERYCHANGED) && (elementDictionary != null)) {
                 ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
                 if(args != null) {
                     final int battery = (Integer) args.get(ARFeatureSkyController.ARCONTROLLER_DICTIONARY_KEY_SKYCONTROLLER_SKYCONTROLLERSTATE_BATTERYCHANGED_PERCENT);
@@ -378,6 +384,19 @@ public class SkyController2Drone {
                         @Override
                         public void run() {
                             notifySkyController2BatteryChanged(battery);
+                        }
+                    });
+                }
+            }
+            // if event received is the altitude update
+            else if((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_ALTITUDECHANGED) && (elementDictionary != null)){
+                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
+                if(args != null) {
+                    final double altitude = (double)args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_ALTITUDECHANGED_ALTITUDE);
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyAltitudeChanged(altitude);
                         }
                     });
                 }

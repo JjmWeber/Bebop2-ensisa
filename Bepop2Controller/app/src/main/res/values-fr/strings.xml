@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="take_off">Décoller</string>
+    <string name="land">Atterrir</string>
+    <string name="connecting">Connexion...</string>
+    <string name="disconnecting">Déconnexion...</string>
+    <string name="downloading_medias">Téléchargement en cours</string>
+    <string name="cancel">Annuler</string>
+    <string name="fetching_medias">Récupération des médias</string>
+
+    <string name="main_instructions">Veuillez sélectionner un appareil :</string>
+    <string name="device_not_supported">Appareil non supporté</string>
+</resources>

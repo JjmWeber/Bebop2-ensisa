@@ -1,13 +1,14 @@
 package fr.ensisa.bepop2controller.activity;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageButton;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM;
@@ -20,6 +21,7 @@ import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
 import fr.ensisa.bepop2controller.R;
 import fr.ensisa.bepop2controller.drone.Bebop2Drone;
 import fr.ensisa.bepop2controller.view.Bebop2VideoView;
+import io.github.controlwear.virtual.joystick.android.JoystickView;
 
 public class Bebop2Activity extends AppCompatActivity {
 
@@ -32,11 +34,16 @@ public class Bebop2Activity extends AppCompatActivity {
 
     private Bebop2VideoView videoView;
 
-    private TextView batteryLabel;
-    private TextView altitudeLabel;
+    private ImageView batteryIconView;
 
-    private ImageButton takeOffLandBt;
-    private ImageButton downloadBt;
+    private TextView batteryTextView;
+    private TextView altitudeTextView;
+
+    private Button takeOffAndLandBt;
+    private Button downloadBt;
+
+    private JoystickView leftJoystick;
+    private JoystickView rightJoystick;
 
     private int nbMaxDownload;
     private int currentDownloadIndex;
@@ -59,7 +66,7 @@ public class Bebop2Activity extends AppCompatActivity {
         if((bebop2Drone != null) && !(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING.equals(bebop2Drone.getConnectionState()))) {
             connectionProgressDialog = new ProgressDialog(this);
             connectionProgressDialog.setIndeterminate(true);
-            connectionProgressDialog.setMessage("Connecting ...");
+            connectionProgressDialog.setMessage(Bebop2Activity.this.getString(R.string.connecting));
             connectionProgressDialog.setCancelable(false);
             connectionProgressDialog.show();
 
@@ -73,7 +80,7 @@ public class Bebop2Activity extends AppCompatActivity {
         if(bebop2Drone != null) {
             connectionProgressDialog = new ProgressDialog(this);
             connectionProgressDialog.setIndeterminate(true);
-            connectionProgressDialog.setMessage("Disconnecting ...");
+            connectionProgressDialog.setMessage(Bebop2Activity.this.getString(R.string.disconnecting));
             connectionProgressDialog.setCancelable(false);
             connectionProgressDialog.show();
 
@@ -97,8 +104,8 @@ public class Bebop2Activity extends AppCompatActivity {
             }
         });
 
-        takeOffLandBt = (ImageButton) findViewById(R.id.takeOffAndLandButton);
-        takeOffLandBt.setOnClickListener(new View.OnClickListener() {
+        takeOffAndLandBt = (Button) findViewById(R.id.takeOffAndLandButton);
+        takeOffAndLandBt.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 switch (bebop2Drone.getFlyingState()) {
                     case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_LANDED:
@@ -119,7 +126,7 @@ public class Bebop2Activity extends AppCompatActivity {
             }
         });
 
-        downloadBt = (ImageButton)findViewById(R.id.downloadbutton);
+        downloadBt = (Button)findViewById(R.id.downloadButton);
         downloadBt.setEnabled(false);
         downloadBt.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -127,9 +134,9 @@ public class Bebop2Activity extends AppCompatActivity {
 
                 downloadProgressDialog = new ProgressDialog(Bebop2Activity.this);
                 downloadProgressDialog.setIndeterminate(true);
-                downloadProgressDialog.setMessage("Fetching medias");
+                downloadProgressDialog.setMessage(Bebop2Activity.this.getString(R.string.fetching_medias));
                 downloadProgressDialog.setCancelable(false);
-                downloadProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+                downloadProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, Bebop2Activity.this.getString(R.string.cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         bebop2Drone.cancelGetLastFlightMedias();
@@ -139,7 +146,23 @@ public class Bebop2Activity extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.upButton).setOnTouchListener(new View.OnTouchListener() {
+        leftJoystick = (JoystickView)findViewById(R.id.leftJoystick);
+        leftJoystick.setOnMoveListener(new JoystickView.OnMoveListener() {
+            @Override
+            public void onMove(int angle, int strength) {
+
+            }
+        });
+
+        rightJoystick = (JoystickView)findViewById(R.id.rightJoystick);
+        rightJoystick.setOnMoveListener(new JoystickView.OnMoveListener() {
+            @Override
+            public void onMove(int angle, int strength) {
+
+            }
+        });
+
+        /*findViewById(R.id.upwardButton).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
@@ -297,10 +320,12 @@ public class Bebop2Activity extends AppCompatActivity {
                 }
                 return true;
             }
-        });
+        });*/
 
-        batteryLabel = (TextView) findViewById(R.id.batteryLabel);
-        altitudeLabel = (TextView) findViewById(R.id.altitudeLabel);
+        batteryIconView = (ImageView) findViewById(R.id.batteryIconView);
+
+        batteryTextView = (TextView) findViewById(R.id.batteryTextView);
+        altitudeTextView = (TextView) findViewById(R.id.altitudeTextView);
     }
 
     private final Bebop2Drone.Listener bebopListener = new Bebop2Drone.Listener() {
@@ -319,31 +344,72 @@ public class Bebop2Activity extends AppCompatActivity {
             }
         }
 
+        @SuppressLint("DefaultLocale")
         @Override
         public void onBatteryChargeChanged(int batteryPercentage) {
-            batteryLabel.setText(String.format("Battery : %d%%", batteryPercentage));
+            batteryTextView.setText(String.format(" %d%%", batteryPercentage));
+            switch(batteryPercentage / 10) {
+                case 10:
+                    batteryIconView.setImageDrawable(Bebop2Activity.this.getDrawable(R.drawable.ic_battery_100));
+                    break;
+                case 9:
+                    batteryIconView.setImageDrawable(Bebop2Activity.this.getDrawable(R.drawable.ic_battery_100));
+                    break;
+                case 8:
+                    batteryIconView.setImageDrawable(Bebop2Activity.this.getDrawable(R.drawable.ic_battery_80));
+                    break;
+                case 7:
+                    batteryIconView.setImageDrawable(Bebop2Activity.this.getDrawable(R.drawable.ic_battery_70));
+                    break;
+                case 6:
+                    batteryIconView.setImageDrawable(Bebop2Activity.this.getDrawable(R.drawable.ic_battery_60));
+                    break;
+                case 5:
+                    batteryIconView.setImageDrawable(Bebop2Activity.this.getDrawable(R.drawable.ic_battery_50));
+                    break;
+                case 4:
+                    batteryIconView.setImageDrawable(Bebop2Activity.this.getDrawable(R.drawable.ic_battery_40));
+                    break;
+                case 3:
+                    batteryIconView.setImageDrawable(Bebop2Activity.this.getDrawable(R.drawable.ic_battery_30));
+                    break;
+                case 2:
+                    batteryIconView.setImageDrawable(Bebop2Activity.this.getDrawable(R.drawable.ic_battery_20));
+                    break;
+                case 1:
+                    batteryIconView.setImageDrawable(Bebop2Activity.this.getDrawable(R.drawable.ic_battery_10));
+                    break;
+                case 0:
+                    batteryIconView.setImageDrawable(Bebop2Activity.this.getDrawable(R.drawable.ic_battery_alert));
+                    break;
+                default:
+                    batteryIconView.setImageDrawable(Bebop2Activity.this.getDrawable(R.drawable.ic_battery_alert));
+                    break;
+            }
         }
 
+        @SuppressLint("DefaultLocale")
+        @Override
         public void onAltitudeChanged(double altitudeValue) {
-            altitudeLabel.setText(String.format("Altitude : %.1f m", altitudeValue));
+            altitudeTextView.setText(String.format(" %.1f m", altitudeValue));
         }
 
         @Override
         public void onPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state) {
             switch (state) {
                 case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_LANDED:
-                    takeOffLandBt.setImageResource(R.drawable.ic_action_take_off);
-                    takeOffLandBt.setEnabled(true);
+                    takeOffAndLandBt.setText(R.string.take_off);
+                    takeOffAndLandBt.setEnabled(true);
                     downloadBt.setEnabled(true);
                     break;
                 case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING:
                 case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING:
-                    takeOffLandBt.setImageResource(R.drawable.ic_action_land);
-                    takeOffLandBt.setEnabled(true);
+                    takeOffAndLandBt.setText(R.string.land);
+                    takeOffAndLandBt.setEnabled(true);
                     downloadBt.setEnabled(false);
                     break;
                 default:
-                    takeOffLandBt.setEnabled(false);
+                    takeOffAndLandBt.setEnabled(false);
                     downloadBt.setEnabled(false);
             }
         }
@@ -374,12 +440,12 @@ public class Bebop2Activity extends AppCompatActivity {
                 downloadProgressDialog = new ProgressDialog(Bebop2Activity.this);
                 downloadProgressDialog.setIndeterminate(false);
                 downloadProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                downloadProgressDialog.setMessage("Downloading medias");
+                downloadProgressDialog.setMessage(Bebop2Activity.this.getString(R.string.downloading_medias));
                 downloadProgressDialog.setMax(nbMaxDownload * 100);
                 downloadProgressDialog.setSecondaryProgress(currentDownloadIndex * 100);
                 downloadProgressDialog.setProgress(0);
                 downloadProgressDialog.setCancelable(false);
-                downloadProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+                downloadProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, Bebop2Activity.this.getString(R.string.cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         bebop2Drone.cancelGetLastFlightMedias();

@@ -1,5 +1,6 @@
 package fr.ensisa.bepop2controller.activity;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -8,7 +9,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM;
@@ -17,6 +19,7 @@ import com.parrot.arsdk.arcontroller.ARCONTROLLER_DEVICE_STATE_ENUM;
 import com.parrot.arsdk.arcontroller.ARControllerCodec;
 import com.parrot.arsdk.arcontroller.ARFrame;
 import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
+
 import fr.ensisa.bepop2controller.R;
 import fr.ensisa.bepop2controller.drone.SkyController2Drone;
 import fr.ensisa.bepop2controller.view.Bebop2VideoView;
@@ -32,12 +35,16 @@ public class SkyController2Activity extends AppCompatActivity {
 
     private Bebop2VideoView videoView;
 
-    private TextView droneBatteryLabel;
-    private TextView skyController2BatteryLabel;
-    private TextView droneConnectionLabel;
+    private ImageView droneBatteryIconView;
+    private ImageView controllerBatteryIconView;
 
-    private ImageButton takeOffLandBt;
-    private ImageButton downloadBt;
+    private TextView droneBatteryTextView;
+    private TextView controllerBatteryTextView;
+    private TextView altitudeTextView;
+    private ProgressBar loadingAnimation;
+
+    private Button takeOffAndLandBt;
+    private Button downloadBt;
 
     private int nbMaxDownload;
     private int currentDownloadIndex;
@@ -63,7 +70,7 @@ public class SkyController2Activity extends AppCompatActivity {
                 !(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING.equals(skyController2Drone.getSkyController2ConnectionState()))) {
             connectionProgressDialog = new ProgressDialog(this);
             connectionProgressDialog.setIndeterminate(true);
-            connectionProgressDialog.setMessage("Connecting ...");
+            connectionProgressDialog.setMessage(SkyController2Activity.this.getString(R.string.connecting));
             connectionProgressDialog.setCancelable(false);
             connectionProgressDialog.show();
 
@@ -77,7 +84,7 @@ public class SkyController2Activity extends AppCompatActivity {
         if (skyController2Drone != null) {
             connectionProgressDialog = new ProgressDialog(this);
             connectionProgressDialog.setIndeterminate(true);
-            connectionProgressDialog.setMessage("Disconnecting ...");
+            connectionProgressDialog.setMessage(SkyController2Activity.this.getString(R.string.disconnecting));
             connectionProgressDialog.setCancelable(false);
             connectionProgressDialog.show();
 
@@ -102,8 +109,8 @@ public class SkyController2Activity extends AppCompatActivity {
             }
         });
 
-        takeOffLandBt = (ImageButton) findViewById(R.id.takeOffAndLandButton);
-        takeOffLandBt.setOnClickListener(new View.OnClickListener() {
+        takeOffAndLandBt = (Button) findViewById(R.id.takeOffAndLandButton);
+        takeOffAndLandBt.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 switch (skyController2Drone.getFlyingState()) {
                     case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_LANDED:
@@ -124,7 +131,7 @@ public class SkyController2Activity extends AppCompatActivity {
             }
         });
 
-        downloadBt = (ImageButton)findViewById(R.id.downloadbutton);
+        downloadBt = (Button)findViewById(R.id.downloadButton);
         downloadBt.setEnabled(false);
         downloadBt.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -132,9 +139,9 @@ public class SkyController2Activity extends AppCompatActivity {
 
                 downloadProgressDialog = new ProgressDialog(SkyController2Activity.this);
                 downloadProgressDialog.setIndeterminate(true);
-                downloadProgressDialog.setMessage("Fetching medias");
+                downloadProgressDialog.setMessage(SkyController2Activity.this.getString(R.string.fetching_medias));
                 downloadProgressDialog.setCancelable(false);
-                downloadProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+                downloadProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, SkyController2Activity.this.getString(R.string.cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         skyController2Drone.cancelGetLastFlightMedias();
@@ -144,10 +151,14 @@ public class SkyController2Activity extends AppCompatActivity {
             }
         });
 
-        skyController2BatteryLabel = (TextView) findViewById(R.id.skyBatteryLabel);
-        droneBatteryLabel = (TextView) findViewById(R.id.droneBatteryLabel);
+        droneBatteryIconView = (ImageView) findViewById(R.id.droneBatteryIconView);
+        controllerBatteryIconView = (ImageView) findViewById(R.id.controllerBatteryIconView);
 
-        droneConnectionLabel = (TextView) findViewById(R.id.droneConnectionLabel);
+        controllerBatteryTextView = (TextView) findViewById(R.id.controllerBatteryTextView);
+        droneBatteryTextView = (TextView) findViewById(R.id.droneBatteryTextView);
+        altitudeTextView = (TextView) findViewById(R.id.altitudeTextView);
+
+        loadingAnimation = (ProgressBar)findViewById(R.id.loadingAnimation);
     }
 
     private final SkyController2Drone.Listener mSkyController2Listener = new SkyController2Drone.Listener() {
@@ -157,7 +168,7 @@ public class SkyController2Activity extends AppCompatActivity {
                 case ARCONTROLLER_DEVICE_STATE_RUNNING:
                     connectionProgressDialog.dismiss();
                     if (!ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING.equals(skyController2Drone.getDroneConnectionState()))
-                        droneConnectionLabel.setVisibility(View.VISIBLE);
+                        loadingAnimation.setVisibility(View.VISIBLE);
                     break;
                 case ARCONTROLLER_DEVICE_STATE_STOPPED:
                     connectionProgressDialog.dismiss();
@@ -172,40 +183,124 @@ public class SkyController2Activity extends AppCompatActivity {
         public void onDroneConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state) {
             switch (state) {
                 case ARCONTROLLER_DEVICE_STATE_RUNNING:
-                    droneConnectionLabel.setVisibility(View.GONE);
+                    loadingAnimation.setVisibility(View.GONE);
                     break;
                 default:
-                    droneConnectionLabel.setVisibility(View.VISIBLE);
+                    loadingAnimation.setVisibility(View.VISIBLE);
                     break;
             }
         }
 
+        @SuppressLint("DefaultLocale")
         @Override
         public void onSkyController2BatteryChargeChanged(int batteryPercentage) {
-            skyController2BatteryLabel.setText(String.format("%d%%", batteryPercentage));
+            controllerBatteryTextView.setText(String.format(" %d%%", batteryPercentage));
+            switch(batteryPercentage / 10) {
+                case 10:
+                    controllerBatteryIconView.setImageDrawable(SkyController2Activity.this.getDrawable(R.drawable.ic_battery_100));
+                    break;
+                case 9:
+                    controllerBatteryIconView.setImageDrawable(SkyController2Activity.this.getDrawable(R.drawable.ic_battery_100));
+                    break;
+                case 8:
+                    controllerBatteryIconView.setImageDrawable(SkyController2Activity.this.getDrawable(R.drawable.ic_battery_80));
+                    break;
+                case 7:
+                    controllerBatteryIconView.setImageDrawable(SkyController2Activity.this.getDrawable(R.drawable.ic_battery_70));
+                    break;
+                case 6:
+                    controllerBatteryIconView.setImageDrawable(SkyController2Activity.this.getDrawable(R.drawable.ic_battery_60));
+                    break;
+                case 5:
+                    controllerBatteryIconView.setImageDrawable(SkyController2Activity.this.getDrawable(R.drawable.ic_battery_50));
+                    break;
+                case 4:
+                    controllerBatteryIconView.setImageDrawable(SkyController2Activity.this.getDrawable(R.drawable.ic_battery_40));
+                    break;
+                case 3:
+                    controllerBatteryIconView.setImageDrawable(SkyController2Activity.this.getDrawable(R.drawable.ic_battery_30));
+                    break;
+                case 2:
+                    controllerBatteryIconView.setImageDrawable(SkyController2Activity.this.getDrawable(R.drawable.ic_battery_20));
+                    break;
+                case 1:
+                    controllerBatteryIconView.setImageDrawable(SkyController2Activity.this.getDrawable(R.drawable.ic_battery_10));
+                    break;
+                case 0:
+                    controllerBatteryIconView.setImageDrawable(SkyController2Activity.this.getDrawable(R.drawable.ic_battery_alert));
+                    break;
+                default:
+                    controllerBatteryIconView.setImageDrawable(SkyController2Activity.this.getDrawable(R.drawable.ic_battery_alert));
+                    break;
+            }
         }
 
+        @SuppressLint("DefaultLocale")
         @Override
         public void onDroneBatteryChargeChanged(int batteryPercentage) {
-            droneBatteryLabel.setText(String.format("%d%%", batteryPercentage));
+            droneBatteryTextView.setText(String.format(" %d%%", batteryPercentage));
+            switch(batteryPercentage / 10) {
+                case 10:
+                    droneBatteryIconView.setImageDrawable(SkyController2Activity.this.getDrawable(R.drawable.ic_battery_100));
+                    break;
+                case 9:
+                    droneBatteryIconView.setImageDrawable(SkyController2Activity.this.getDrawable(R.drawable.ic_battery_100));
+                    break;
+                case 8:
+                    droneBatteryIconView.setImageDrawable(SkyController2Activity.this.getDrawable(R.drawable.ic_battery_80));
+                    break;
+                case 7:
+                    droneBatteryIconView.setImageDrawable(SkyController2Activity.this.getDrawable(R.drawable.ic_battery_70));
+                    break;
+                case 6:
+                    droneBatteryIconView.setImageDrawable(SkyController2Activity.this.getDrawable(R.drawable.ic_battery_60));
+                    break;
+                case 5:
+                    droneBatteryIconView.setImageDrawable(SkyController2Activity.this.getDrawable(R.drawable.ic_battery_50));
+                    break;
+                case 4:
+                    droneBatteryIconView.setImageDrawable(SkyController2Activity.this.getDrawable(R.drawable.ic_battery_40));
+                    break;
+                case 3:
+                    droneBatteryIconView.setImageDrawable(SkyController2Activity.this.getDrawable(R.drawable.ic_battery_30));
+                    break;
+                case 2:
+                    droneBatteryIconView.setImageDrawable(SkyController2Activity.this.getDrawable(R.drawable.ic_battery_20));
+                    break;
+                case 1:
+                    droneBatteryIconView.setImageDrawable(SkyController2Activity.this.getDrawable(R.drawable.ic_battery_10));
+                    break;
+                case 0:
+                    droneBatteryIconView.setImageDrawable(SkyController2Activity.this.getDrawable(R.drawable.ic_battery_alert));
+                    break;
+                default:
+                    droneBatteryIconView.setImageDrawable(SkyController2Activity.this.getDrawable(R.drawable.ic_battery_alert));
+                    break;
+            }
+        }
+
+        @SuppressLint("DefaultLocale")
+        @Override
+        public void onAltitudeChanged(double altitudeValue) {
+            altitudeTextView.setText(String.format(" %.1f m", altitudeValue));
         }
 
         @Override
         public void onPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state) {
             switch (state) {
                 case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_LANDED:
-                    takeOffLandBt.setImageResource(R.drawable.ic_action_take_off);
-                    takeOffLandBt.setEnabled(true);
+                    takeOffAndLandBt.setText(R.string.take_off);
+                    takeOffAndLandBt.setEnabled(true);
                     downloadBt.setEnabled(true);
                     break;
                 case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING:
                 case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING:
-                    takeOffLandBt.setImageResource(R.drawable.ic_action_land);
-                    takeOffLandBt.setEnabled(true);
+                    takeOffAndLandBt.setText(R.string.land);
+                    takeOffAndLandBt.setEnabled(true);
                     downloadBt.setEnabled(false);
                     break;
                 default:
-                    takeOffLandBt.setEnabled(false);
+                    takeOffAndLandBt.setEnabled(false);
                     downloadBt.setEnabled(false);
             }
         }
@@ -236,12 +331,12 @@ public class SkyController2Activity extends AppCompatActivity {
                 downloadProgressDialog = new ProgressDialog(SkyController2Activity.this);
                 downloadProgressDialog.setIndeterminate(false);
                 downloadProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                downloadProgressDialog.setMessage("Downloading medias");
+                downloadProgressDialog.setMessage(SkyController2Activity.this.getString(R.string.downloading_medias));
                 downloadProgressDialog.setMax(nbMaxDownload * 100);
                 downloadProgressDialog.setSecondaryProgress(currentDownloadIndex * 100);
                 downloadProgressDialog.setProgress(0);
                 downloadProgressDialog.setCancelable(false);
-                downloadProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+                downloadProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, SkyController2Activity.this.getString(R.string.cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         skyController2Drone.cancelGetLastFlightMedias();

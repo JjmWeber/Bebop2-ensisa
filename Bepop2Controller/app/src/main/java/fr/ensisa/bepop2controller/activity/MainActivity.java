@@ -158,7 +158,6 @@ public class MainActivity extends AppCompatActivity {
         class ViewHolder {
             TextView type;
             TextView name;
-            ImageView icon;
         }
 
         public DeviceAdapter(Context context, List<ARDiscoveryDeviceService> mDronesList) {
@@ -175,7 +174,6 @@ public class MainActivity extends AppCompatActivity {
                 holder = new ViewHolder();
                 holder.type = (TextView) convertView.findViewById(R.id.deviceTypeTextView);
                 holder.name = (TextView) convertView.findViewById(R.id.deviceNameTextView);
-                holder.icon = (ImageView) convertView.findViewById(R.id.deviceTypeImageView);
                 convertView.setTag(holder);
             } else {
                 holder = (ViewHolder) convertView.getTag();
@@ -186,15 +184,12 @@ public class MainActivity extends AppCompatActivity {
             switch (product) {
                 case ARDISCOVERY_PRODUCT_BEBOP_2:
                     holder.type.setText("Bebop2 Drone");
-                    holder.icon.setImageResource(R.drawable.ic_drone_device);
                     break;
                 case ARDISCOVERY_PRODUCT_SKYCONTROLLER_2:
                     holder.type.setText("SkyController 2");
-                    holder.icon.setImageResource(R.drawable.ic_controller_device);
                     break;
                 default:
                     holder.type.setText(R.string.device_not_supported);
-                    holder.icon.setImageResource(R.drawable.ic_device_not_supported);
             }
             holder.name.setText(device.getName());
             return convertView;

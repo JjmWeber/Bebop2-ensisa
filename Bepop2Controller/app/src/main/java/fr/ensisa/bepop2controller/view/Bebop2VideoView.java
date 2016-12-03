@@ -132,6 +132,7 @@ public class Bebop2VideoView extends SurfaceView implements SurfaceHolder.Callba
         mediaCodec.start();
 
         if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.LOLLIPOP)
+            //noinspection deprecation
             buffers = mediaCodec.getInputBuffers();
 
         isCodecConfigured = true;

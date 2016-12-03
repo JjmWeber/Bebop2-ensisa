@@ -23,13 +23,13 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
-public class SDCardModule {
+class SDCardModule {
 
     private static final String TAG = "SDCardModule";
     private static final String DRONE_MEDIA_FOLDER = "internal_000";
     private static final String MOBILE_MEDIA_FOLDER = "/ARSDKMedias/";
 
-    public interface Listener {
+    interface Listener {
         void onMatchingMediasFound(int nbMedias);
 
         void onDownloadProgressed(String mediaName, int progress);
@@ -40,8 +40,6 @@ public class SDCardModule {
     private final List<Listener> listeners;
 
     private ARDataTransferManager dataTransferManager;
-    private ARUtilsManager ftpList;
-    private ARUtilsManager ftpQueue;
 
     private boolean threadIsRunning;
     private boolean isCancelled;
@@ -49,12 +47,9 @@ public class SDCardModule {
     private int nbMediasToDownload;
     private int currentDownloadIndex;
 
-    public SDCardModule(@NonNull ARUtilsManager ftpListManager, @NonNull ARUtilsManager ftpQueueManager) {
+    SDCardModule(@NonNull ARUtilsManager ftpListManager, @NonNull ARUtilsManager ftpQueueManager) {
         threadIsRunning = false;
         listeners = new ArrayList<>();
-
-        ftpList = ftpListManager;
-        ftpQueue = ftpQueueManager;
 
         ARDATATRANSFER_ERROR_ENUM result = ARDATATRANSFER_ERROR_ENUM.ARDATATRANSFER_OK;
         try {
@@ -75,7 +70,7 @@ public class SDCardModule {
             }
             
             try {
-                dataTransferManager.getARDataTransferMediasDownloader().createMediasDownloader(ftpList, ftpQueue, DRONE_MEDIA_FOLDER, externalDirectory);
+                dataTransferManager.getARDataTransferMediasDownloader().createMediasDownloader(ftpListManager, ftpQueueManager, DRONE_MEDIA_FOLDER, externalDirectory);
             } catch (ARDataTransferException e) {
                 Log.e(TAG, "Exception", e);
                 result = e.getError();
@@ -88,15 +83,15 @@ public class SDCardModule {
         }
     }
 
-    public void addListener(Listener listener) {
+    void addListener(Listener listener) {
         listeners.add(listener);
     }
 
-    public void removeListener(Listener listener) {
+    void removeListener(Listener listener) {
         listeners.remove(listener);
     }
 
-    public void getFlightMedias(final String runId) {
+    void getFlightMedias(final String runId) {
         if(!threadIsRunning) {
             threadIsRunning = true;
             new Thread(new Runnable() {
@@ -123,7 +118,7 @@ public class SDCardModule {
         }
     }
 
-    public void getTodaysFlightMedias() {
+    void getTodaysFlightMedias() {
         if(!threadIsRunning) {
             threadIsRunning = true;
             new Thread(new Runnable() {
@@ -151,7 +146,7 @@ public class SDCardModule {
         }
     }
 
-    public void cancelGetFlightMedias() {
+    void cancelGetFlightMedias() {
         if(threadIsRunning) {
             isCancelled = true;
             ARDataTransferMediasDownloader mediasDownloader = null;

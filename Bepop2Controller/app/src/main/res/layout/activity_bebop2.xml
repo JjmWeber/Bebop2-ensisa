@@ -34,7 +34,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=" - %"
-            android:textColor="@color/hud_color_light"
+            android:textColor="@color/primary_high"
             android:layout_marginEnd="20dp"
             tools:ignore="HardcodedText" />
 
@@ -50,23 +50,23 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=" - m"
-            android:textColor="@color/hud_color_light"
+            android:textColor="@color/primary_high"
             android:layout_marginEnd="20dp"
             tools:ignore="HardcodedText" />
 
         <ImageView
-            android:id="@+id/velocityIconView"
+            android:id="@+id/speedIconView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:srcCompat="@drawable/ic_velocity"
             tools:ignore="ContentDescription" />
 
         <TextView
-            android:id="@+id/velocityTextView"
+            android:id="@+id/speedTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="  - m/s"
-            android:textColor="@color/hud_color_light"
+            android:textColor="@color/primary_high"
             android:layout_marginEnd="20dp"
             tools:ignore="HardcodedText" />
 
@@ -169,8 +169,8 @@
         android:layout_alignParentBottom="true"
         android:layout_marginStart="-20dp"
         android:layout_marginBottom="-20dp"
-        app:JV_buttonColor="@color/hud_color_light_transparent"
-        app:JV_borderColor="@color/hud_color_light_transparent"
+        app:JV_buttonColor="@color/primary_high_transparent"
+        app:JV_borderColor="@color/primary_high_transparent"
         app:JV_backgroundColor="@color/joystick_background"
         app:JV_borderWidth="2dp"
         app:JV_fixedCenter="true" />
@@ -183,8 +183,8 @@
         android:layout_alignParentEnd="true"
         android:layout_marginBottom="-20dp"
         android:layout_marginEnd="-20dp"
-        app:JV_buttonColor="@color/hud_color_light_transparent"
-        app:JV_borderColor="@color/hud_color_light_transparent"
+        app:JV_buttonColor="@color/primary_high_transparent"
+        app:JV_borderColor="@color/primary_high_transparent"
         app:JV_backgroundColor="@color/joystick_background"
         app:JV_borderWidth="2dp"
         app:JV_fixedCenter="true" />
@@ -196,9 +196,9 @@
         android:layout_margin="10dp"
         android:layout_below="@+id/barLayout"
         android:layout_centerHorizontal="true"
-        android:background="@drawable/style_take_off_and_land"
+        android:background="@drawable/style_take_off_and_land_button"
         android:textStyle="normal|bold"
-        android:textColor="@color/hud_color_light"
+        android:textColor="@color/primary_high"
         android:text="@string/take_off" />
 
     <android.support.design.widget.FloatingActionButton
@@ -344,5 +344,14 @@
         app:fabSize="mini"
         app:backgroundTint="@color/icon_background"
         app:srcCompat="@drawable/ic_front_flip" />
+
+    <ImageView
+        android:id="@+id/horizonImageView"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        app:srcCompat="@mipmap/pic_horizon"
+        tools:ignore="ContentDescription"
+        android:layout_width="300dp" />
 
 </RelativeLayout>

@@ -7,7 +7,11 @@
     <string name="downloading_medias">Téléchargement en cours</string>
     <string name="cancel">Annuler</string>
     <string name="fetching_medias">Récupération des médias</string>
+    <string name="picture_taken">Photo enregistrée</string>
 
-    <string name="main_instructions">Veuillez sélectionner un appareil :</string>
     <string name="device_not_supported">Appareil non supporté</string>
+    <string name="device_not_recognized">Appareil non reconnu</string>
+
+    <string name="options">Options</string>
+    <string name="help">Help</string>
 </resources>

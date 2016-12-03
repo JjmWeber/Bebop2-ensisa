@@ -5,13 +5,16 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM;
@@ -37,14 +40,16 @@ public class SkyController2Activity extends AppCompatActivity {
 
     private ImageView droneBatteryIconView;
     private ImageView controllerBatteryIconView;
+    private ImageView horizonImageView;
 
     private TextView droneBatteryTextView;
     private TextView controllerBatteryTextView;
     private TextView altitudeTextView;
+    private TextView speedTextView;
     private ProgressBar loadingAnimation;
 
     private Button takeOffAndLandBt;
-    private Button downloadBt;
+    private FloatingActionButton downloadBt;
 
     private int nbMaxDownload;
     private int currentDownloadIndex;
@@ -131,7 +136,7 @@ public class SkyController2Activity extends AppCompatActivity {
             }
         });
 
-        downloadBt = (Button)findViewById(R.id.downloadButton);
+        downloadBt = (FloatingActionButton)findViewById(R.id.downloadButton);
         downloadBt.setEnabled(false);
         downloadBt.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -153,14 +158,17 @@ public class SkyController2Activity extends AppCompatActivity {
 
         droneBatteryIconView = (ImageView) findViewById(R.id.droneBatteryIconView);
         controllerBatteryIconView = (ImageView) findViewById(R.id.controllerBatteryIconView);
+        horizonImageView = (ImageView) findViewById(R.id.horizonImageView);
 
         controllerBatteryTextView = (TextView) findViewById(R.id.controllerBatteryTextView);
         droneBatteryTextView = (TextView) findViewById(R.id.droneBatteryTextView);
         altitudeTextView = (TextView) findViewById(R.id.altitudeTextView);
+        speedTextView = (TextView) findViewById(R.id.speedTextView);
 
         loadingAnimation = (ProgressBar)findViewById(R.id.loadingAnimation);
     }
 
+    @SuppressLint("DefaultLocale")
     private final SkyController2Drone.Listener mSkyController2Listener = new SkyController2Drone.Listener() {
         @Override
         public void onSkyController2ConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state) {
@@ -191,7 +199,6 @@ public class SkyController2Activity extends AppCompatActivity {
             }
         }
 
-        @SuppressLint("DefaultLocale")
         @Override
         public void onSkyController2BatteryChargeChanged(int batteryPercentage) {
             controllerBatteryTextView.setText(String.format(" %d%%", batteryPercentage));
@@ -235,7 +242,6 @@ public class SkyController2Activity extends AppCompatActivity {
             }
         }
 
-        @SuppressLint("DefaultLocale")
         @Override
         public void onDroneBatteryChargeChanged(int batteryPercentage) {
             droneBatteryTextView.setText(String.format(" %d%%", batteryPercentage));
@@ -279,7 +285,22 @@ public class SkyController2Activity extends AppCompatActivity {
             }
         }
 
-        @SuppressLint("DefaultLocale")
+        @Override
+        public void onSpeedChanged(float speed) {
+            speedTextView.setText(String.format("  %.1f m/s", speed));
+        }
+
+        @Override
+        public void horizonChanged(float roll) {
+            final RotateAnimation rotateAnim = new RotateAnimation(0.0f, roll*25,
+                    RotateAnimation.RELATIVE_TO_SELF, 0.5f,
+                    RotateAnimation.RELATIVE_TO_SELF, 0.5f);
+
+            rotateAnim.setDuration(0);
+            rotateAnim.setFillAfter(true);
+            horizonImageView.startAnimation(rotateAnim);
+        }
+
         @Override
         public void onAltitudeChanged(double altitudeValue) {
             altitudeTextView.setText(String.format(" %.1f m", altitudeValue));
@@ -307,6 +328,7 @@ public class SkyController2Activity extends AppCompatActivity {
 
         @Override
         public void onPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error) {
+            Toast.makeText(getApplicationContext(), R.string.picture_taken, Toast.LENGTH_SHORT).show();
             Log.i(TAG, "Picture has been taken");
         }
 

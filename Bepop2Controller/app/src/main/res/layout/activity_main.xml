@@ -3,100 +3,108 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    tools:context="fr.ensisa.bepop2controller.activity.MainActivity"
+
+    android:id="@+id/mainActivityLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="fr.ensisa.bepop2controller.activity.MainActivity">
+    android:background="@color/black" >
 
     <TextView
-        android:text="Bebop2 Controller"
+        android:id="@+id/titleTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/textView"
-        android:textSize="24sp"
+        android:layout_margin="10dp"
+        android:text="@string/app_name"
+        android:textSize="28sp"
         android:textAlignment="center"
         android:textStyle="normal|bold"
-        android:textAllCaps="false"
-        android:textColor="@color/accent"
-        android:layout_margin="10dp" />
+        android:textColor="@color/primary_high"
+        android:fontFamily="sans-serif-smallcaps" />
 
     <LinearLayout
+        android:id="@+id/firstLinearLayout"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/textView">
+        android:layout_below="@+id/titleTextView"
+        android:baselineAligned="false">
 
         <ListView
             android:id="@+id/deviceList"
             android:layout_height="match_parent"
             android:layout_width="match_parent"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_below="@+id/mainInstructions"
-            android:layout_alignParentStart="true"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:layout_margin="10dp"
+            android:background="@drawable/style_devices_list" >
         </ListView>
 
         <LinearLayout
+            android:id="@+id/secondLinearLayout"
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="2"
-            android:elevation="1dp">
+            android:layout_weight="2" >
 
             <ImageView
+                android:id="@+id/productsImageView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/style_products_image_view"
                 app:srcCompat="@mipmap/pic_products"
-                android:id="@+id/imageView6"
-                android:layout_weight="1" />
+                tools:ignore="ContentDescription" />
 
             <LinearLayout
+                android:id="@+id/thirdLinearLayout"
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1">
+                android:layout_weight="2" >
 
                 <LinearLayout
+                    android:id="@+id/fourthLinearLayout"
                     android:orientation="horizontal"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1">
+                    android:layout_weight="1" >
 
                     <Button
-                        android:text="Refresh"
+                        android:id="@+id/optionsButton"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:id="@+id/button11"
-                        android:layout_weight="1" />
+                        android:layout_weight="1"
+                        android:layout_margin="4dp"
+                        android:background="@drawable/style_options_and_help_buttons"
+                        android:text="@string/options"
+                        android:textColor="@color/primary_high"
+                        tools:ignore="ButtonStyle" />
 
                     <Button
-                        android:text="Exit"
+                        android:id="@+id/helpButton"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:id="@+id/button10"
-                        android:layout_weight="1" />
+                        android:layout_weight="1"
+                        android:layout_margin="4dp"
+                        android:background="@drawable/style_options_and_help_buttons"
+                        android:text="@string/help"
+                        android:textColor="@color/primary_high"
+                        tools:ignore="ButtonStyle" />
+
                 </LinearLayout>
 
-                <LinearLayout
-                    android:orientation="horizontal"
+                <TextView
+                    android:id="@+id/aboutTextView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1">
+                    android:layout_weight="1"
+                    android:gravity="bottom"
+                    android:text="@string/about"
+                    android:textColor="@color/primary_high"
+                    android:textSize="14sp"
+                    android:textAlignment="center"
+                    android:fontFamily="sans-serif-smallcaps" />
 
-                    <Button
-                        android:text="Help"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:id="@+id/button13"
-                        android:layout_weight="1" />
-
-                    <Button
-                        android:text="About"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:id="@+id/button12"
-                        android:layout_weight="1" />
-                </LinearLayout>
             </LinearLayout>
 
         </LinearLayout>

@@ -4,14 +4,14 @@
 
     <gradient
         android:angle="270"
-        android:endColor="@color/hud_color_transparent"
-        android:startColor="@color/hud_color_transparent" />
+        android:startColor="@color/primary_medium_transparent"
+        android:endColor="@color/primary_medium_transparent" />
 
     <corners
         android:radius="20dp" />
 
     <stroke
         android:width="2px"
-        android:color="@color/hud_color" />
+        android:color="@color/primary_medium" />
 
 </shape>

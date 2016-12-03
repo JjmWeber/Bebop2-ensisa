@@ -15,7 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -68,16 +67,18 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = null;
 
                 ARDiscoveryDeviceService service = (ARDiscoveryDeviceService) adapter.getItem(position);
-                ARDISCOVERY_PRODUCT_ENUM product = ARDiscoveryService.getProductFromProductID(service.getProductID());
-                switch (product) {
-                    case ARDISCOVERY_PRODUCT_BEBOP_2:
-                        intent = new Intent(MainActivity.this, Bebop2Activity.class);
-                        break;
-                    case ARDISCOVERY_PRODUCT_SKYCONTROLLER_2:
-                        intent = new Intent(MainActivity.this, SkyController2Activity.class);
-                        break;
-                    default:
-                        Log.e(TAG, "The type " + product + " is not supported by this sample");
+                if(service != null) {
+                    ARDISCOVERY_PRODUCT_ENUM product = ARDiscoveryService.getProductFromProductID(service.getProductID());
+                    switch (product) {
+                        case ARDISCOVERY_PRODUCT_BEBOP_2:
+                            intent = new Intent(MainActivity.this, Bebop2Activity.class);
+                            break;
+                        case ARDISCOVERY_PRODUCT_SKYCONTROLLER_2:
+                            intent = new Intent(MainActivity.this, SkyController2Activity.class);
+                            break;
+                        default:
+                            Log.e(TAG, "The type " + product + " is not supported by this sample");
+                    }
                 }
 
                 if(intent != null) {
@@ -160,17 +161,19 @@ public class MainActivity extends AppCompatActivity {
             TextView name;
         }
 
-        public DeviceAdapter(Context context, List<ARDiscoveryDeviceService> mDronesList) {
+        @SuppressWarnings("unchecked")
+        DeviceAdapter(Context context, List<ARDiscoveryDeviceService> mDronesList) {
             super(context, R.layout.item_device, mDronesList);
         }
 
+        @NonNull
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
 
             ViewHolder holder;
             if (convertView == null) {
                 LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-                convertView = inflater.inflate(R.layout.item_device, null);
+                convertView = inflater.inflate(R.layout.item_device, (ListView)findViewById(R.id.deviceList));
                 holder = new ViewHolder();
                 holder.type = (TextView) convertView.findViewById(R.id.deviceTypeTextView);
                 holder.name = (TextView) convertView.findViewById(R.id.deviceNameTextView);
@@ -180,18 +183,23 @@ public class MainActivity extends AppCompatActivity {
             }
 
             ARDiscoveryDeviceService device = (ARDiscoveryDeviceService) getItem(position);
-            ARDISCOVERY_PRODUCT_ENUM product = ARDiscoveryService.getProductFromProductID(device.getProductID());
-            switch (product) {
-                case ARDISCOVERY_PRODUCT_BEBOP_2:
-                    holder.type.setText("Bebop2 Drone");
-                    break;
-                case ARDISCOVERY_PRODUCT_SKYCONTROLLER_2:
-                    holder.type.setText("SkyController 2");
-                    break;
-                default:
-                    holder.type.setText(R.string.device_not_supported);
+            if (device != null) {
+                ARDISCOVERY_PRODUCT_ENUM product = ARDiscoveryService.getProductFromProductID(device.getProductID());
+                switch (product) {
+                    case ARDISCOVERY_PRODUCT_BEBOP_2:
+                        holder.type.setText(R.string.bebop2_drone);
+                        break;
+                    case ARDISCOVERY_PRODUCT_SKYCONTROLLER_2:
+                        holder.type.setText(R.string.skycontroller2);
+                        break;
+                    default:
+                        holder.type.setText(R.string.device_not_supported);
+                }
+                holder.name.setText(device.getName());
+            } else {
+                holder.type.setText(R.string.device_not_supported);
+                holder.name.setText(R.string.device_not_recognized);
             }
-            holder.name.setText(device.getName());
             return convertView;
 
         }

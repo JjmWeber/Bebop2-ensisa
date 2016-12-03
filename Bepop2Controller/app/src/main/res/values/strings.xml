@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name" translatable="false">Bebop2 Controller</string>
+
     <string name="take_off">Take Off</string>
     <string name="land">Land</string>
     <string name="connecting">Connecting...</string>
@@ -7,7 +8,14 @@
     <string name="downloading_medias">Downloading medias</string>
     <string name="cancel">Cancel</string>
     <string name="fetching_medias">Fetching medias</string>
+    <string name="picture_taken">Picture taken</string>
 
-    <string name="main_instructions">Please choose the device you want to use :</string>
+    <string name="bebop2_drone">Bebop2 Drone</string>
+    <string name="skycontroller2">SkyController 2</string>
     <string name="device_not_supported">Not supported device</string>
+    <string name="device_not_recognized">Device not recognized</string>
+
+    <string name="options">Options</string>
+    <string name="help">Help</string>
+    <string name="about" translatable="false">Bebop2 Controller\nVersion 1.0.0\nDecember 2016</string>
 </resources>

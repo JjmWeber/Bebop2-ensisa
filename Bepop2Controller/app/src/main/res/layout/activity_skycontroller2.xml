@@ -24,7 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:indeterminate="true"
-            android:indeterminateTint="@color/hud_color_light" />
+            android:indeterminateTint="@color/primary_high" />
 
     </RelativeLayout>
 
@@ -56,7 +56,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=" - %"
-            android:textColor="@color/hud_color_light"
+            android:textColor="@color/primary_high"
             android:layout_marginEnd="20dp"
             tools:ignore="HardcodedText" />
 
@@ -79,7 +79,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=" - %"
-            android:textColor="@color/hud_color_light"
+            android:textColor="@color/primary_high"
             android:layout_marginEnd="20dp"
             tools:ignore="HardcodedText" />
 
@@ -95,7 +95,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=" - m"
-            android:textColor="@color/hud_color_light"
+            android:textColor="@color/primary_high"
             android:layout_marginEnd="20dp"
             tools:ignore="HardcodedText" />
 
@@ -111,7 +111,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="  - m/s"
-            android:textColor="@color/hud_color_light"
+            android:textColor="@color/primary_high"
             android:layout_marginEnd="20dp"
             tools:ignore="HardcodedText" />
 
@@ -124,9 +124,9 @@
         android:layout_margin="10dp"
         android:layout_below="@+id/barLayout"
         android:layout_centerHorizontal="true"
-        android:background="@drawable/style_take_off_and_land"
+        android:background="@drawable/style_take_off_and_land_button"
         android:textStyle="normal|bold"
-        android:textColor="@color/hud_color_light"
+        android:textColor="@color/primary_high"
         android:text="@string/take_off" />
 
     <android.support.design.widget.FloatingActionButton

@@ -4,14 +4,20 @@ import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_ANIMATIONS_FLIP_DIRECTION_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM;
 import com.parrot.arsdk.arcontroller.ARCONTROLLER_DEVICE_STATE_ENUM;
 import com.parrot.arsdk.arcontroller.ARControllerCodec;
@@ -35,18 +41,26 @@ public class Bebop2Activity extends AppCompatActivity {
     private Bebop2VideoView videoView;
 
     private ImageView batteryIconView;
+    private ImageView horizonImageView;
 
     private TextView batteryTextView;
     private TextView altitudeTextView;
+    private TextView speedTextView;
 
     private Button takeOffAndLandBt;
-    private Button downloadBt;
-
-    private JoystickView leftJoystick;
-    private JoystickView rightJoystick;
+    private FloatingActionButton downloadBt;
+    private FloatingActionButton videoBt;
+    private FloatingActionButton frontFlipBt;
+    private FloatingActionButton backFlipBt;
+    private FloatingActionButton leftFlipBt;
+    private FloatingActionButton rightFlipBt;
+    private FloatingActionButton flipBt;
 
     private int nbMaxDownload;
     private int currentDownloadIndex;
+    private boolean isRecording = false;
+    private boolean isFlipping = false;
+    private int pitch = 0, roll = 0, gaz = 0, yaw = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +72,7 @@ public class Bebop2Activity extends AppCompatActivity {
         ARDiscoveryDeviceService service = getIntent().getParcelableExtra(MainActivity.EXTRA_DEVICE_SERVICE);
         bebop2Drone = new Bebop2Drone(this, service);
         bebop2Drone.addListener(bebopListener);
+        bebop2Drone.getDeviceController().getFeatureARDrone3().sendGPSSettingsHomeType((ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_ENUM.ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_TAKEOFF));
     }
 
     @Override
@@ -126,7 +141,23 @@ public class Bebop2Activity extends AppCompatActivity {
             }
         });
 
-        downloadBt = (Button)findViewById(R.id.downloadButton);
+        videoBt = (FloatingActionButton) findViewById(R.id.videoButton);
+        videoBt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!isRecording) {
+                    bebop2Drone.getDeviceController().getFeatureARDrone3().sendMediaRecordVideoV2(ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM.ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_STOP);
+                    bebop2Drone.getDeviceController().getFeatureARDrone3().sendMediaRecordVideoV2(ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM.ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_START);
+                    videoBt.setImageDrawable(Bebop2Activity.this.getDrawable(R.drawable.ic_stop_video));
+                } else {
+                    bebop2Drone.getDeviceController().getFeatureARDrone3().sendMediaRecordVideoV2(ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM.ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_STOP);
+                    videoBt.setImageDrawable(Bebop2Activity.this.getDrawable(R.drawable.ic_video));
+                }
+                isRecording = !isRecording;
+            }
+        });
+
+        downloadBt = (FloatingActionButton)findViewById(R.id.downloadButton);
         downloadBt.setEnabled(false);
         downloadBt.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -146,188 +177,167 @@ public class Bebop2Activity extends AppCompatActivity {
             }
         });
 
-        leftJoystick = (JoystickView)findViewById(R.id.leftJoystick);
-        leftJoystick.setOnMoveListener(new JoystickView.OnMoveListener() {
+        findViewById(R.id.homeButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bebop2Drone.getDeviceController().getFeatureARDrone3().sendPilotingNavigateHome((byte) 1);
+            }
+        });
+
+        frontFlipBt = (FloatingActionButton) findViewById(R.id.frontFlipButton);
+        frontFlipBt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bebop2Drone.getDeviceController().getFeatureARDrone3().sendAnimationsFlip((ARCOMMANDS_ARDRONE3_ANIMATIONS_FLIP_DIRECTION_ENUM.ARCOMMANDS_ARDRONE3_ANIMATIONS_FLIP_DIRECTION_FRONT));
+            }
+        });
+
+        backFlipBt = (FloatingActionButton) findViewById(R.id.backFlipButton);
+        backFlipBt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bebop2Drone.getDeviceController().getFeatureARDrone3().sendAnimationsFlip((ARCOMMANDS_ARDRONE3_ANIMATIONS_FLIP_DIRECTION_ENUM.ARCOMMANDS_ARDRONE3_ANIMATIONS_FLIP_DIRECTION_BACK));
+            }
+        });
+
+        leftFlipBt = (FloatingActionButton) findViewById(R.id.leftFlipButton);
+        leftFlipBt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bebop2Drone.getDeviceController().getFeatureARDrone3().sendAnimationsFlip((ARCOMMANDS_ARDRONE3_ANIMATIONS_FLIP_DIRECTION_ENUM.ARCOMMANDS_ARDRONE3_ANIMATIONS_FLIP_DIRECTION_LEFT));
+            }
+        });
+
+        rightFlipBt = (FloatingActionButton) findViewById(R.id.rightFlipButton);
+        rightFlipBt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bebop2Drone.getDeviceController().getFeatureARDrone3().sendAnimationsFlip((ARCOMMANDS_ARDRONE3_ANIMATIONS_FLIP_DIRECTION_ENUM.ARCOMMANDS_ARDRONE3_ANIMATIONS_FLIP_DIRECTION_RIGHT));
+            }
+        });
+
+        flipBt = (FloatingActionButton) findViewById(R.id.flipButton);
+        flipBt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!isFlipping) {
+                    frontFlipBt.setVisibility(View.VISIBLE);
+                    backFlipBt.setVisibility(View.VISIBLE);
+                    leftFlipBt.setVisibility(View.VISIBLE);
+                    rightFlipBt.setVisibility(View.VISIBLE);
+                    flipBt.setImageDrawable(Bebop2Activity.this.getDrawable(R.drawable.ic_cancel));
+                } else {
+                    frontFlipBt.setVisibility(View.INVISIBLE);
+                    backFlipBt.setVisibility(View.INVISIBLE);
+                    leftFlipBt.setVisibility(View.INVISIBLE);
+                    rightFlipBt.setVisibility(View.INVISIBLE);
+                    flipBt.setImageDrawable(Bebop2Activity.this.getDrawable(R.drawable.ic_flip));
+                }
+                isFlipping = !isFlipping;
+            }
+        });
+
+        ((JoystickView)findViewById(R.id.leftJoystick)).setOnMoveListener(new JoystickView.OnMoveListener() {
             @Override
             public void onMove(int angle, int strength) {
-
+                switch(angle/30) {
+                    case 0:
+                    case 11:
+                        pitch = 0;
+                        roll = strength;
+                        break;
+                    case 1:
+                        pitch = strength;
+                        roll = strength;
+                        break;
+                    case 2:
+                    case 3:
+                        pitch = strength;
+                        roll = 0;
+                        break;
+                    case 4:
+                        pitch = strength;
+                        roll = -strength;
+                        break;
+                    case 5:
+                    case 6:
+                        pitch = 0;
+                        roll = -strength;
+                        break;
+                    case 7:
+                        pitch = -strength;
+                        roll = -strength;
+                        break;
+                    case 8:
+                    case 9:
+                        pitch = -strength;
+                        roll = 0;
+                        break;
+                    case 10:
+                        pitch = -strength;
+                        roll = strength;
+                        break;
+                }
+                bebop2Drone.setPitch((byte) pitch);
+                bebop2Drone.setRoll((byte) roll);
             }
         });
 
-        rightJoystick = (JoystickView)findViewById(R.id.rightJoystick);
-        rightJoystick.setOnMoveListener(new JoystickView.OnMoveListener() {
+        ((JoystickView)findViewById(R.id.rightJoystick)).setOnMoveListener(new JoystickView.OnMoveListener() {
             @Override
             public void onMove(int angle, int strength) {
-
-            }
-        });
-
-        /*findViewById(R.id.upwardButton).setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        v.setPressed(true);
-                        bebop2Drone.setGaz((byte) 50);
+                switch(angle/30) {
+                    case 0:
+                    case 11:
+                        gaz = 0;
+                        yaw = strength;
                         break;
-                    case MotionEvent.ACTION_UP:
-                        v.setPressed(false);
-                        bebop2Drone.setGaz((byte) 0);
+                    case 1:
+                        gaz = strength;
+                        yaw = strength;
                         break;
-                    default:
+                    case 2:
+                    case 3:
+                        gaz = strength;
+                        yaw = 0;
                         break;
-                }
-                return true;
-            }
-        });
-
-        findViewById(R.id.downButton).setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        v.setPressed(true);
-                        bebop2Drone.setGaz((byte) -50);
+                    case 4:
+                        gaz = strength;
+                        yaw = -strength;
                         break;
-                    case MotionEvent.ACTION_UP:
-                        v.setPressed(false);
-                        bebop2Drone.setGaz((byte) 0);
+                    case 5:
+                    case 6:
+                        gaz = 0;
+                        yaw = -strength;
                         break;
-                    default:
+                    case 7:
+                        gaz = -strength;
+                        yaw = -strength;
                         break;
-                }
-                return true;
-            }
-        });
-
-        findViewById(R.id.anticlockwiseButton).setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        v.setPressed(true);
-                        bebop2Drone.setYaw((byte) -50);
+                    case 8:
+                    case 9:
+                        gaz = -strength;
+                        yaw = 0;
                         break;
-                    case MotionEvent.ACTION_UP:
-                        v.setPressed(false);
-                        bebop2Drone.setYaw((byte) 0);
-                        break;
-                    default:
+                    case 10:
+                        gaz = -strength;
+                        yaw = strength;
                         break;
                 }
-                return true;
+                bebop2Drone.setGaz((byte) gaz);
+                bebop2Drone.setYaw((byte) yaw);
             }
         });
-
-        findViewById(R.id.clockwiseButton).setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        v.setPressed(true);
-                        bebop2Drone.setYaw((byte) 50);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        v.setPressed(false);
-                        bebop2Drone.setYaw((byte) 0);
-                        break;
-                    default:
-                        break;
-                }
-                return true;
-            }
-        });
-
-        findViewById(R.id.forwardButton).setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        v.setPressed(true);
-                        bebop2Drone.setPitch((byte) 50);
-                        bebop2Drone.setFlag((byte) 1);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        v.setPressed(false);
-                        bebop2Drone.setPitch((byte) 0);
-                        bebop2Drone.setFlag((byte) 0);
-                        break;
-                    default:
-                        break;
-                }
-                return true;
-            }
-        });
-
-        findViewById(R.id.backwardButton).setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        v.setPressed(true);
-                        bebop2Drone.setPitch((byte) -50);
-                        bebop2Drone.setFlag((byte) 1);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        v.setPressed(false);
-                        bebop2Drone.setPitch((byte) 0);
-                        bebop2Drone.setFlag((byte) 0);
-                        break;
-                    default:
-                        break;
-                }
-                return true;
-            }
-        });
-
-        findViewById(R.id.leftButton).setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        v.setPressed(true);
-                        bebop2Drone.setRoll((byte) -50);
-                        bebop2Drone.setFlag((byte) 1);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        v.setPressed(false);
-                        bebop2Drone.setRoll((byte) 0);
-                        bebop2Drone.setFlag((byte) 0);
-                        break;
-                    default:
-                        break;
-                }
-                return true;
-            }
-        });
-
-        findViewById(R.id.rightButton).setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        v.setPressed(true);
-                        bebop2Drone.setRoll((byte) 50);
-                        bebop2Drone.setFlag((byte) 1);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        v.setPressed(false);
-                        bebop2Drone.setRoll((byte) 0);
-                        bebop2Drone.setFlag((byte) 0);
-                        break;
-                    default:
-                        break;
-                }
-                return true;
-            }
-        });*/
 
         batteryIconView = (ImageView) findViewById(R.id.batteryIconView);
+        horizonImageView = (ImageView) findViewById(R.id.horizonImageView);
 
         batteryTextView = (TextView) findViewById(R.id.batteryTextView);
         altitudeTextView = (TextView) findViewById(R.id.altitudeTextView);
+        speedTextView = (TextView) findViewById(R.id.speedTextView);
     }
 
+    @SuppressLint("DefaultLocale")
     private final Bebop2Drone.Listener bebopListener = new Bebop2Drone.Listener() {
         @Override
         public void onDroneConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state) {
@@ -344,7 +354,6 @@ public class Bebop2Activity extends AppCompatActivity {
             }
         }
 
-        @SuppressLint("DefaultLocale")
         @Override
         public void onBatteryChargeChanged(int batteryPercentage) {
             batteryTextView.setText(String.format(" %d%%", batteryPercentage));
@@ -388,7 +397,22 @@ public class Bebop2Activity extends AppCompatActivity {
             }
         }
 
-        @SuppressLint("DefaultLocale")
+        @Override
+        public void onSpeedChanged(float speed) {
+            speedTextView.setText(String.format("  %.1f m/s", speed));
+        }
+
+        @Override
+        public void horizonChanged(float roll) {
+            final RotateAnimation rotateAnim = new RotateAnimation(0.0f, roll*25,
+                    RotateAnimation.RELATIVE_TO_SELF, 0.5f,
+                    RotateAnimation.RELATIVE_TO_SELF, 0.5f);
+
+            rotateAnim.setDuration(0);
+            rotateAnim.setFillAfter(true);
+            horizonImageView.startAnimation(rotateAnim);
+        }
+
         @Override
         public void onAltitudeChanged(double altitudeValue) {
             altitudeTextView.setText(String.format(" %.1f m", altitudeValue));
@@ -416,6 +440,7 @@ public class Bebop2Activity extends AppCompatActivity {
 
         @Override
         public void onPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error) {
+            Toast.makeText(getApplicationContext(), R.string.picture_taken, Toast.LENGTH_SHORT).show();
             Log.i(TAG, "Picture has been taken");
         }
 

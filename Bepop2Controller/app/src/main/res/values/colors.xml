@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary_dark">#888888</color>
-    <color name="primary">#dddddd</color>
-    <color name="primary_light">#ffffff</color>
-    <color name="accent">#ff327d</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+
+    <color name="primary_high">#00ff00</color>
+    <color name="primary_medium">#009b00</color>
+    <color name="primary_low">#003700</color>
+
+    <color name="primary_high_transparent">#5000ff00</color>
+    <color name="primary_medium_transparent">#50009b00</color>
+    <color name="primary_low_transparent">#50003700</color>
+
     <color name="background">#00000000</color>
     <color name="icon_background">#32000000</color>
     <color name="joystick_background">#32000000</color>
     <color name="bar_background">#64000000</color>
-    <color name="hud_color_light">#00ff00</color>
-    <color name="hud_color">#009b00</color>
-    <color name="hud_color_dark">#003700</color>
-    <color name="hud_color_light_transparent">#5000ff00</color>
-    <color name="hud_color_transparent">#50009b00</color>
-    <color name="hud_color_dark_transparent">#50003700</color>
 </resources>

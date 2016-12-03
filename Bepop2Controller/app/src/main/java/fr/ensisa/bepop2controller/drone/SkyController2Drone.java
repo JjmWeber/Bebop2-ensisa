@@ -50,6 +50,10 @@ public class SkyController2Drone {
 
         void onAltitudeChanged(double altitude);
 
+        void onSpeedChanged(float speed);
+
+        void horizonChanged(float roll);
+
         void onPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state);
 
         void onPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error);
@@ -87,7 +91,7 @@ public class SkyController2Drone {
         ARDISCOVERY_PRODUCT_ENUM productType = ARDiscoveryService.getProductFromProductID(deviceService.getProductID());
 
         if(ARDISCOVERY_PRODUCT_ENUM.ARDISCOVERY_PRODUCT_SKYCONTROLLER_2.equals(productType)) {
-            ARDiscoveryDevice discoveryDevice = createDiscoveryDevice(deviceService, productType);
+            ARDiscoveryDevice discoveryDevice = createDiscoveryDevice(productType);
             if(discoveryDevice != null) {
                 deviceController = createDeviceController(discoveryDevice);
                 discoveryDevice.dispose();
@@ -199,7 +203,7 @@ public class SkyController2Drone {
         sdCardModule.cancelGetFlightMedias();
     }
 
-    private ARDiscoveryDevice createDiscoveryDevice(@NonNull ARDiscoveryDeviceService service, ARDISCOVERY_PRODUCT_ENUM productType) {
+    private ARDiscoveryDevice createDiscoveryDevice(ARDISCOVERY_PRODUCT_ENUM productType) {
         ARDiscoveryDevice device = null;
 
         try {
@@ -257,6 +261,20 @@ public class SkyController2Drone {
             listener.onAltitudeChanged(altitude);
     }
 
+    private void notifySpeedChanged(float speed) {
+        List<Listener> listenersCpy = new ArrayList<>(this.listeners);
+        for (Listener listener : listenersCpy) {
+            listener.onSpeedChanged(speed);
+        }
+    }
+
+    private void notifyHorizonChanged(float roll) {
+        List<Listener> listenersCpy = new ArrayList<>(this.listeners);
+        for (Listener listener : listenersCpy) {
+            listener.horizonChanged(roll);
+        }
+    }
+
     private void notifyPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state) {
         List<Listener> listeners = new ArrayList<>(this.listeners);
         for (Listener listener : listeners)
@@ -299,6 +317,7 @@ public class SkyController2Drone {
             listener.onDownloadComplete(mediaName);
     }
 
+    @SuppressWarnings("FieldCanBeLocal")
     private final SDCardModule.Listener sdCardModuleListener = new SDCardModule.Listener() {
         @Override
         public void onMatchingMediasFound(final int nbMedias) {
@@ -397,6 +416,36 @@ public class SkyController2Drone {
                         @Override
                         public void run() {
                             notifyAltitudeChanged(altitude);
+                        }
+                    });
+                }
+            }
+            // if event received is the horizon update
+            else if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_ATTITUDECHANGED) && (elementDictionary != null)){
+                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
+                if (args != null) {
+                    final float roll = (float)((Double)args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_ATTITUDECHANGED_ROLL)).doubleValue();
+                    //float pitch = (float)((Double)args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_ATTITUDECHANGED_PITCH)).doubleValue();
+                    //float yaw = (float)((Double)args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_ATTITUDECHANGED_YAW)).doubleValue();
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyHorizonChanged(roll);
+                        }
+                    });
+                }
+            }
+            // if event received is the speed update
+            else if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_SPEEDCHANGED) && (elementDictionary != null)){
+                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
+                if (args != null) {
+                    final  float speedX = (float)((Double)args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_SPEEDCHANGED_SPEEDX)).doubleValue();
+                    //final float speedY = (float)((Double)args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_SPEEDCHANGED_SPEEDY)).doubleValue();
+                    //final float speedZ = (float)((Double)args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_SPEEDCHANGED_SPEEDZ)).doubleValue();
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifySpeedChanged(speedX);
                         }
                     });
                 }

@@ -23,6 +23,11 @@ public class Bebop2VideoView extends SurfaceView implements SurfaceHolder.Callba
     private static final String VIDEO_MIME_TYPE = "video/avc";
     private static final int VIDEO_DEQUEUE_TIMEOUT = 33000;
 
+    public static void setVideoFormatDimensions(int width, int height) {
+        VIDEO_WIDTH = width;
+        VIDEO_HEIGHT = height;
+    }
+
     private MediaCodec mediaCodec;
     private Lock readyLock;
 
@@ -32,8 +37,8 @@ public class Bebop2VideoView extends SurfaceView implements SurfaceHolder.Callba
     private ByteBuffer ppsBuffer;
     private ByteBuffer[] buffers;
 
-    private static final int VIDEO_WIDTH = 640;
-    private static final int VIDEO_HEIGHT = 368;
+    private static int VIDEO_WIDTH = 640;
+    private static int VIDEO_HEIGHT = 360;
 
     public Bebop2VideoView(Context context) {
         super(context);

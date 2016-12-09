@@ -9,6 +9,11 @@
     <string name="cancel">Cancel</string>
     <string name="fetching_medias">Fetching medias</string>
     <string name="picture_taken">Picture taken</string>
+    <string name="video_started">Video started</string>
+    <string name="video_stopped">Video stopped</string>
+    <string name="no_percentage" translatable="false">\ - %</string>
+    <string name="no_distance" translatable="false">\ - m</string>
+    <string name="no_speed" translatable="false">\ \ - m/s</string>
 
     <string name="bebop2_drone">Bebop2 Drone</string>
     <string name="skycontroller2">SkyController 2</string>
@@ -16,6 +21,9 @@
     <string name="device_not_recognized">Device not recognized</string>
 
     <string name="options">Options</string>
+    <string name="video_option">Options</string>
+    <string name="_option">Options</string>
     <string name="help">Help</string>
-    <string name="about" translatable="false">Bebop2 Controller\nVersion 1.0.0\nDecember 2016</string>
+    <string name="about" translatable="false">Bebop2 Controller\nVersion %1$s</string>
+    <string name="aboutNoVersion" translatable="false">Bebop2 Controller\nUnknown Version</string>
 </resources>

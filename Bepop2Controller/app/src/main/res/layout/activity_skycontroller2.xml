@@ -34,8 +34,8 @@
         android:foreground="@color/bar_background"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true" >
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
 
         <ImageView
             android:id="@+id/droneIconView"
@@ -55,10 +55,9 @@
             android:id="@+id/droneBatteryTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=" - %"
+            android:text="@string/no_percentage"
             android:textColor="@color/primary_high"
-            android:layout_marginEnd="20dp"
-            tools:ignore="HardcodedText" />
+            android:layout_marginEnd="20dp" />
 
         <ImageView
             android:id="@+id/controllerIconView"
@@ -78,10 +77,9 @@
             android:id="@+id/controllerBatteryTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=" - %"
+            android:text="@string/no_percentage"
             android:textColor="@color/primary_high"
-            android:layout_marginEnd="20dp"
-            tools:ignore="HardcodedText" />
+            android:layout_marginEnd="20dp" />
 
         <ImageView
             android:id="@+id/altitudeIconView"
@@ -94,29 +92,27 @@
             android:id="@+id/altitudeTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=" - m"
+            android:text="@string/no_distance"
             android:textColor="@color/primary_high"
-            android:layout_marginEnd="20dp"
-            tools:ignore="HardcodedText" />
+            android:layout_marginEnd="20dp" />
 
         <ImageView
-            android:id="@+id/velocityIconView"
+            android:id="@+id/speedIconView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_velocity"
+            app:srcCompat="@drawable/ic_speed"
             tools:ignore="ContentDescription" />
 
         <TextView
-            android:id="@+id/velocityTextView"
+            android:id="@+id/speedTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="  - m/s"
+            android:text="@string/no_speed"
             android:textColor="@color/primary_high"
-            android:layout_marginEnd="20dp"
-            tools:ignore="HardcodedText" />
+            android:layout_marginEnd="20dp" />
 
     </LinearLayout>
-
+    
     <Button
         android:id="@+id/takeOffAndLandButton"
         android:layout_width="100dp"
@@ -272,5 +268,15 @@
         app:fabSize="mini"
         app:backgroundTint="@color/icon_background"
         app:srcCompat="@drawable/ic_front_flip" />
+
+    <ImageView
+        android:id="@+id/horizonImageView"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:visibility="invisible"
+        app:srcCompat="@mipmap/pic_horizon"
+        tools:ignore="ContentDescription"
+        android:layout_width="300dp" />
 
 </RelativeLayout>

@@ -1,5 +1,9 @@
-<vector android:autoMirrored="true" android:height="50dp"
-    android:viewportHeight="24.0" android:viewportWidth="24.0"
-    android:width="50dp" xmlns:android="http://schemas.android.com/apk/res/android">
-    <path android:fillColor="#009b00" android:pathData="M7,14l5,-5 5,5z"/>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:height="@dimen/ic_joystick_moves_dim" android:viewportHeight="24.0"
+    android:width="@dimen/ic_joystick_moves_dim" android:viewportWidth="24.0" >
+
+    <path
+        android:fillColor="@color/primary_high_transparent"
+        android:pathData="M7,14l5,-5 5,5z" />
+
 </vector>

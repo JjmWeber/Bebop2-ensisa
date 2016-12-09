@@ -2,13 +2,17 @@ package fr.ensisa.bepop2controller.activity;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ContextThemeWrapper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,10 +20,12 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parrot.arsdk.ARSDK;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSETTINGS_PITCHMODE_VALUE_ENUM;
 import com.parrot.arsdk.ardiscovery.ARDISCOVERY_PRODUCT_ENUM;
 import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
 import com.parrot.arsdk.ardiscovery.ARDiscoveryService;
@@ -31,6 +37,7 @@ import java.util.Set;
 
 import fr.ensisa.bepop2controller.R;
 import fr.ensisa.bepop2controller.discovery.DroneDiscoverer;
+import fr.ensisa.bepop2controller.view.Bebop2VideoView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -49,6 +56,9 @@ public class MainActivity extends AppCompatActivity {
     private final List<ARDiscoveryDeviceService> dronesList = new ArrayList<>();
     private DeviceAdapter adapter;
 
+    private byte videoAutoRecord = (byte) 0;
+    private ARCOMMANDS_ARDRONE3_PILOTINGSETTINGS_PITCHMODE_VALUE_ENUM pitchMode = ARCOMMANDS_ARDRONE3_PILOTINGSETTINGS_PITCHMODE_VALUE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSETTINGS_PITCHMODE_VALUE_NORMAL;
+
     static {
         ARSDK.loadSDKLibs();
     }
@@ -57,9 +67,22 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Point size = new Point();
+        getWindowManager().getDefaultDisplay().getSize(size);
+
+        Bebop2VideoView.setVideoFormatDimensions(size.x, size.y);
+
+        TextView aboutTextView = (TextView) findViewById(R.id.aboutTextView);
+        try {
+            aboutTextView.setText(MainActivity.this.getString(R.string.about, getPackageManager().getPackageInfo(getPackageName(), 0).versionName));
+        } catch (Exception e) {
+            aboutTextView.setText(MainActivity.this.getString(R.string.aboutNoVersion));
+        }
+
         final ListView listView = (ListView) findViewById(R.id.deviceList);
 
-        adapter = new DeviceAdapter(this, dronesList);
+                adapter = new DeviceAdapter(this, dronesList);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -73,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
                         case ARDISCOVERY_PRODUCT_BEBOP_2:
                             intent = new Intent(MainActivity.this, Bebop2Activity.class);
                             break;
+                        case ARDISCOVERY_PRODUCT_SKYCONTROLLER:
                         case ARDISCOVERY_PRODUCT_SKYCONTROLLER_2:
                             intent = new Intent(MainActivity.this, SkyController2Activity.class);
                             break;
@@ -85,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
                     intent.putExtra(EXTRA_DEVICE_SERVICE, service);
                     startActivity(intent);
                 }
+
             }
         });
 
@@ -108,6 +133,41 @@ public class MainActivity extends AppCompatActivity {
                     permissionsToRequest.toArray(new String[permissionsToRequest.size()]),
                     REQUEST_CODE_PERMISSIONS_REQUEST);
         }
+
+        findViewById(R.id.optionsButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(new ContextThemeWrapper(MainActivity.this, R.style.AlertTheme));
+                LayoutInflater inflater = MainActivity.this.getLayoutInflater();
+                final View dialogView = inflater.inflate(R.layout.options, null);
+                dialogBuilder.setView(dialogView);
+                dialogBuilder.setTitle("Options");
+                dialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if(((Switch) dialogView.findViewById(R.id.switch1)).isChecked())
+                            videoAutoRecord = (byte) 1;
+                        else
+                            videoAutoRecord = (byte) 0;
+                        if(((Switch) dialogView.findViewById(R.id.switch2)).isChecked())
+                            pitchMode = ARCOMMANDS_ARDRONE3_PILOTINGSETTINGS_PITCHMODE_VALUE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSETTINGS_PITCHMODE_VALUE_INVERTED;
+                        else
+                            pitchMode = ARCOMMANDS_ARDRONE3_PILOTINGSETTINGS_PITCHMODE_VALUE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSETTINGS_PITCHMODE_VALUE_NORMAL;
+                    }
+                });
+
+                AlertDialog alertDialog = dialogBuilder.create();
+                alertDialog.show();
+            }
+        });
+
+        findViewById(R.id.helpButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, DroneTestActivity.class));
+            }
+        });
+
     }
 
     @Override
@@ -173,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
             ViewHolder holder;
             if (convertView == null) {
                 LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-                convertView = inflater.inflate(R.layout.item_device, (ListView)findViewById(R.id.deviceList));
+                convertView = inflater.inflate(R.layout.item_device, null);
                 holder = new ViewHolder();
                 holder.type = (TextView) convertView.findViewById(R.id.deviceTypeTextView);
                 holder.name = (TextView) convertView.findViewById(R.id.deviceNameTextView);
@@ -189,6 +249,7 @@ public class MainActivity extends AppCompatActivity {
                     case ARDISCOVERY_PRODUCT_BEBOP_2:
                         holder.type.setText(R.string.bebop2_drone);
                         break;
+                    case ARDISCOVERY_PRODUCT_SKYCONTROLLER:
                     case ARDISCOVERY_PRODUCT_SKYCONTROLLER_2:
                         holder.type.setText(R.string.skycontroller2);
                         break;

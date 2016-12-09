@@ -3,7 +3,6 @@ package fr.ensisa.bepop2controller.activity;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM;
 import com.parrot.arsdk.arcontroller.ARCONTROLLER_DEVICE_STATE_ENUM;
 import com.parrot.arsdk.arcontroller.ARControllerCodec;
@@ -61,10 +61,9 @@ public class SkyController2Activity extends AppCompatActivity {
 
         initIHM();
 
-        Intent intent = getIntent();
-        ARDiscoveryDeviceService service = intent.getParcelableExtra(MainActivity.EXTRA_DEVICE_SERVICE);
+        ARDiscoveryDeviceService service = getIntent().getParcelableExtra(MainActivity.EXTRA_DEVICE_SERVICE);
         skyController2Drone = new SkyController2Drone(this, service);
-        skyController2Drone.addListener(mSkyController2Listener);
+        skyController2Drone.addListener(skyController2Listener);
     }
 
     @Override
@@ -169,7 +168,7 @@ public class SkyController2Activity extends AppCompatActivity {
     }
 
     @SuppressLint("DefaultLocale")
-    private final SkyController2Drone.Listener mSkyController2Listener = new SkyController2Drone.Listener() {
+    private final SkyController2Drone.Listener skyController2Listener = new SkyController2Drone.Listener() {
         @Override
         public void onSkyController2ConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state) {
             switch (state) {
@@ -192,9 +191,11 @@ public class SkyController2Activity extends AppCompatActivity {
             switch (state) {
                 case ARCONTROLLER_DEVICE_STATE_RUNNING:
                     loadingAnimation.setVisibility(View.GONE);
+                    horizonImageView.setVisibility(View.VISIBLE);
                     break;
                 default:
                     loadingAnimation.setVisibility(View.VISIBLE);
+                    horizonImageView.setVisibility(View.INVISIBLE);
                     break;
             }
         }
@@ -330,6 +331,11 @@ public class SkyController2Activity extends AppCompatActivity {
         public void onPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error) {
             Toast.makeText(getApplicationContext(), R.string.picture_taken, Toast.LENGTH_SHORT).show();
             Log.i(TAG, "Picture has been taken");
+        }
+
+        @Override
+        public void onVideoStateChanged(ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_ENUM state) {
+
         }
 
         @Override

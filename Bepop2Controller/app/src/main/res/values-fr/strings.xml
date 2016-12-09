@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="take_off">Décoller</string>
     <string name="land">Atterrir</string>
@@ -8,6 +7,8 @@
     <string name="cancel">Annuler</string>
     <string name="fetching_medias">Récupération des médias</string>
     <string name="picture_taken">Photo enregistrée</string>
+    <string name="video_started">Video démarrée</string>
+    <string name="video_stopped">Video arrêtée</string>
 
     <string name="device_not_supported">Appareil non supporté</string>
     <string name="device_not_recognized">Appareil non reconnu</string>

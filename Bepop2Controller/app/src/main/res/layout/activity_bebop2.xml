@@ -33,10 +33,9 @@
             android:id="@+id/batteryTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=" - %"
+            android:text="@string/no_percentage"
             android:textColor="@color/primary_high"
-            android:layout_marginEnd="20dp"
-            tools:ignore="HardcodedText" />
+            android:layout_marginEnd="20dp" />
 
         <ImageView
             android:id="@+id/altitudeIconView"
@@ -49,27 +48,24 @@
             android:id="@+id/altitudeTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=" - m"
+            android:text="@string/no_distance"
             android:textColor="@color/primary_high"
-            android:layout_marginEnd="20dp"
-            tools:ignore="HardcodedText" />
+            android:layout_marginEnd="20dp" />
 
         <ImageView
             android:id="@+id/speedIconView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_velocity"
+            app:srcCompat="@drawable/ic_speed"
             tools:ignore="ContentDescription" />
 
         <TextView
             android:id="@+id/speedTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="  - m/s"
+            android:text="@string/no_speed"
             android:textColor="@color/primary_high"
-            android:layout_marginEnd="20dp"
-            tools:ignore="HardcodedText" />
-
+            android:layout_marginEnd="20dp" />
 
     </LinearLayout>
 

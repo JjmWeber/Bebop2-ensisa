@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle" >
 
@@ -7,8 +6,7 @@
         android:startColor="@color/primary_medium_transparent"
         android:endColor="@color/primary_medium_transparent" />
 
-    <corners
-        android:radius="50dp" />
+    <corners android:radius="50dp" />
 
     <stroke
         android:width="2px"

@@ -3,6 +3,13 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowFullscreen">true</item>
+
+        <item name="android:alertDialogTheme">@style/AlertTheme</item>
+    </style>
+
+    <style name="AlertTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:background">@color/black</item>
+        <item name="android:textColor">@color/primary_high</item>
     </style>
 
 </resources>

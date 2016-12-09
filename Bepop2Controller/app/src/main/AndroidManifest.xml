@@ -30,6 +30,8 @@
         <activity
             android:name=".activity.SkyController2Activity"
             android:screenOrientation="landscape" />
+        <activity android:name=".activity.DroneTestActivity" />
+        <activity android:name=".activity.ControllerTestActivity"></activity>
     </application>
 
 </manifest>

@@ -33,7 +33,7 @@ public class DroneDiscoverer {
     private ServiceConnection ardiscoveryServiceConnection;
     private final ARDiscoveryServicesDevicesListUpdatedReceiver ardiscoveryServicesDevicesListUpdatedReceiver;
 
-    private boolean startDaiscoveryAfterConnection;
+    private boolean startDiscoveryAfterConnection;
 
     public DroneDiscoverer(Context context) {
         this.context = context;
@@ -62,9 +62,9 @@ public class DroneDiscoverer {
                 public void onServiceConnected(ComponentName name, IBinder service) {
                     ardiscoveryService = ((ARDiscoveryService.LocalBinder) service).getService();
 
-                    if(startDaiscoveryAfterConnection) {
+                    if(startDiscoveryAfterConnection) {
                         startDiscovering();
-                        startDaiscoveryAfterConnection = false;
+                        startDiscoveryAfterConnection = false;
                     }
                 }
 
@@ -105,9 +105,9 @@ public class DroneDiscoverer {
             Log.i(TAG, "Start discovering");
             discoveryListener.onServicesDevicesListUpdated();
             ardiscoveryService.start();
-            startDaiscoveryAfterConnection = false;
+            startDiscoveryAfterConnection = false;
         } else
-            startDaiscoveryAfterConnection = true;
+            startDiscoveryAfterConnection = true;
     }
 
     public void stopDiscovering() {
@@ -115,7 +115,7 @@ public class DroneDiscoverer {
             Log.i(TAG, "Stop discovering");
             ardiscoveryService.stop();
         }
-        startDaiscoveryAfterConnection = false;
+        startDiscoveryAfterConnection = false;
     }
 
     private void notifyServiceDiscovered(List<ARDiscoveryDeviceService> dronesList) {

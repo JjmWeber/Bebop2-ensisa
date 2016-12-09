@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_ANIMATIONS_FLIP_DIRECTION_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM;
 import com.parrot.arsdk.arcontroller.ARCONTROLLER_DEVICE_STATE_ENUM;
@@ -32,6 +33,9 @@ import io.github.controlwear.virtual.joystick.android.JoystickView;
 public class Bebop2Activity extends AppCompatActivity {
 
     private static final String TAG = "Bebop2Activity";
+    private static final double MINIMUM_RADIUS = 20.0;
+    private static final float HORIZON_ADJUSTMENT = 56;
+    private static final float ROTATION_MAX_SPEED = 36;
 
     private Bebop2Drone bebop2Drone;
 
@@ -60,7 +64,8 @@ public class Bebop2Activity extends AppCompatActivity {
     private int currentDownloadIndex;
     private boolean isRecording = false;
     private boolean isFlipping = false;
-    private int pitch = 0, roll = 0, gaz = 0, yaw = 0;
+    private float currentHorizon = 0;
+    private double pitch = 0, roll = 0, gaz = 0, yaw = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +78,8 @@ public class Bebop2Activity extends AppCompatActivity {
         bebop2Drone = new Bebop2Drone(this, service);
         bebop2Drone.addListener(bebopListener);
         bebop2Drone.getDeviceController().getFeatureARDrone3().sendGPSSettingsHomeType((ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_ENUM.ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_TAKEOFF));
+        bebop2Drone.setFlag((byte) 1);
+        bebop2Drone.getDeviceController().getFeatureARDrone3().sendSpeedSettingsMaxRotationSpeed(ROTATION_MAX_SPEED);
     }
 
     @Override
@@ -145,15 +152,10 @@ public class Bebop2Activity extends AppCompatActivity {
         videoBt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!isRecording) {
-                    bebop2Drone.getDeviceController().getFeatureARDrone3().sendMediaRecordVideoV2(ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM.ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_STOP);
+                if(!isRecording)
                     bebop2Drone.getDeviceController().getFeatureARDrone3().sendMediaRecordVideoV2(ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM.ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_START);
-                    videoBt.setImageDrawable(Bebop2Activity.this.getDrawable(R.drawable.ic_stop_video));
-                } else {
+                else
                     bebop2Drone.getDeviceController().getFeatureARDrone3().sendMediaRecordVideoV2(ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM.ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_STOP);
-                    videoBt.setImageDrawable(Bebop2Activity.this.getDrawable(R.drawable.ic_video));
-                }
-                isRecording = !isRecording;
             }
         });
 
@@ -240,44 +242,35 @@ public class Bebop2Activity extends AppCompatActivity {
         ((JoystickView)findViewById(R.id.leftJoystick)).setOnMoveListener(new JoystickView.OnMoveListener() {
             @Override
             public void onMove(int angle, int strength) {
-                switch(angle/30) {
+
+                double leftRadius = (Math.PI*(angle%90))/180;
+                switch(angle/90) {
                     case 0:
-                    case 11:
-                        pitch = 0;
-                        roll = strength;
+                        pitch =  Math.sin(leftRadius) * strength;
+                        roll = Math.cos(leftRadius) * strength;
                         break;
                     case 1:
-                        pitch = strength;
-                        roll = strength;
+                        pitch = Math.cos(leftRadius) * strength;
+                        roll = -Math.sin(leftRadius) * strength;
                         break;
                     case 2:
+                        pitch = -Math.sin(leftRadius) * strength;
+                        roll = -Math.cos(leftRadius) * strength;
+                        break;
                     case 3:
-                        pitch = strength;
-                        roll = 0;
+                        pitch = -Math.cos(leftRadius) * strength;
+                        roll = Math.sin(leftRadius) * strength;
                         break;
                     case 4:
-                        pitch = strength;
-                        roll = -strength;
-                        break;
-                    case 5:
-                    case 6:
                         pitch = 0;
-                        roll = -strength;
-                        break;
-                    case 7:
-                        pitch = -strength;
-                        roll = -strength;
-                        break;
-                    case 8:
-                    case 9:
-                        pitch = -strength;
-                        roll = 0;
-                        break;
-                    case 10:
-                        pitch = -strength;
                         roll = strength;
                         break;
                 }
+                if(pitch < MINIMUM_RADIUS && pitch > -MINIMUM_RADIUS)
+                    pitch = 0;
+                if(roll < MINIMUM_RADIUS && roll > -MINIMUM_RADIUS)
+                    roll = 0;
+                bebop2Drone.setFlag((byte) 1);
                 bebop2Drone.setPitch((byte) pitch);
                 bebop2Drone.setRoll((byte) roll);
             }
@@ -286,44 +279,33 @@ public class Bebop2Activity extends AppCompatActivity {
         ((JoystickView)findViewById(R.id.rightJoystick)).setOnMoveListener(new JoystickView.OnMoveListener() {
             @Override
             public void onMove(int angle, int strength) {
-                switch(angle/30) {
+                double rightRadius = (Math.PI*(angle%90))/180;
+                switch(angle/90) {
                     case 0:
-                    case 11:
-                        gaz = 0;
-                        yaw = strength;
+                        gaz =  Math.sin(rightRadius) * strength;
+                        yaw = Math.cos(rightRadius) * strength;
                         break;
                     case 1:
-                        gaz = strength;
-                        yaw = strength;
+                        gaz = Math.cos(rightRadius) * strength;
+                        yaw = -Math.sin(rightRadius) * strength;
                         break;
                     case 2:
+                        gaz = -Math.sin(rightRadius) * strength;
+                        yaw = -Math.cos(rightRadius) * strength;
+                        break;
                     case 3:
-                        gaz = strength;
-                        yaw = 0;
+                        gaz = -Math.cos(rightRadius) * strength;
+                        yaw = Math.sin(rightRadius) * strength;
                         break;
                     case 4:
-                        gaz = strength;
-                        yaw = -strength;
-                        break;
-                    case 5:
-                    case 6:
                         gaz = 0;
-                        yaw = -strength;
-                        break;
-                    case 7:
-                        gaz = -strength;
-                        yaw = -strength;
-                        break;
-                    case 8:
-                    case 9:
-                        gaz = -strength;
-                        yaw = 0;
-                        break;
-                    case 10:
-                        gaz = -strength;
                         yaw = strength;
                         break;
                 }
+                if(gaz < MINIMUM_RADIUS && gaz > -MINIMUM_RADIUS)
+                    gaz = 0;
+                if(yaw < MINIMUM_RADIUS && yaw > -MINIMUM_RADIUS)
+                    yaw = 0;
                 bebop2Drone.setGaz((byte) gaz);
                 bebop2Drone.setYaw((byte) yaw);
             }
@@ -398,19 +380,20 @@ public class Bebop2Activity extends AppCompatActivity {
         }
 
         @Override
-        public void onSpeedChanged(float speed) {
+        public void onSpeedChanged(double speed) {
             speedTextView.setText(String.format("  %.1f m/s", speed));
         }
 
         @Override
         public void horizonChanged(float roll) {
-            final RotateAnimation rotateAnim = new RotateAnimation(0.0f, roll*25,
+            final RotateAnimation rotateAnim = new RotateAnimation(currentHorizon, roll*HORIZON_ADJUSTMENT,
                     RotateAnimation.RELATIVE_TO_SELF, 0.5f,
                     RotateAnimation.RELATIVE_TO_SELF, 0.5f);
 
-            rotateAnim.setDuration(0);
+            rotateAnim.setDuration(200);
             rotateAnim.setFillAfter(true);
             horizonImageView.startAnimation(rotateAnim);
+            currentHorizon = roll*HORIZON_ADJUSTMENT;
         }
 
         @Override
@@ -442,6 +425,22 @@ public class Bebop2Activity extends AppCompatActivity {
         public void onPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error) {
             Toast.makeText(getApplicationContext(), R.string.picture_taken, Toast.LENGTH_SHORT).show();
             Log.i(TAG, "Picture has been taken");
+        }
+
+        @Override
+        public void onVideoStateChanged(ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_ENUM state) {
+            switch(state) {
+                case ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_STARTED:
+                    videoBt.setImageDrawable(Bebop2Activity.this.getDrawable(R.drawable.ic_stop_video));
+                    Toast.makeText(getApplicationContext(), R.string.video_started, Toast.LENGTH_SHORT).show();
+                    isRecording = true;
+                    Log.i(TAG, "Video started recording");
+                case ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_STOPPED:
+                    videoBt.setImageDrawable(Bebop2Activity.this.getDrawable(R.drawable.ic_video));
+                    Toast.makeText(getApplicationContext(), R.string.video_stopped, Toast.LENGTH_SHORT).show();
+                    isRecording = false;
+                    Log.i(TAG, "Video stopped recording");
+            }
         }
 
         @Override

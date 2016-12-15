@@ -19,6 +19,7 @@ import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSETTINGS_PITCHMODE_VALUE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM;
 import com.parrot.arsdk.arcontroller.ARCONTROLLER_DEVICE_STATE_ENUM;
 import com.parrot.arsdk.arcontroller.ARControllerCodec;
@@ -62,10 +63,13 @@ public class Bebop2Activity extends AppCompatActivity {
 
     private int nbMaxDownload;
     private int currentDownloadIndex;
+    private short delay = 10;
     private boolean isRecording = false;
     private boolean isFlipping = false;
     private float currentHorizon = 0;
     private double pitch = 0, roll = 0, gaz = 0, yaw = 0;
+
+    private Thread panoramaMaker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,11 +79,44 @@ public class Bebop2Activity extends AppCompatActivity {
         initIHM();
 
         ARDiscoveryDeviceService service = getIntent().getParcelableExtra(MainActivity.EXTRA_DEVICE_SERVICE);
+        boolean videoAutoRecord = getIntent().getParcelableExtra(MainActivity.VIDEO_OPTION);
+        boolean pitchMode = getIntent().getParcelableExtra(MainActivity.PITCH_OPTION);
         bebop2Drone = new Bebop2Drone(this, service);
         bebop2Drone.addListener(bebopListener);
         bebop2Drone.getDeviceController().getFeatureARDrone3().sendGPSSettingsHomeType((ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_ENUM.ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_TAKEOFF));
-        bebop2Drone.setFlag((byte) 1);
         bebop2Drone.getDeviceController().getFeatureARDrone3().sendSpeedSettingsMaxRotationSpeed(ROTATION_MAX_SPEED);
+        bebop2Drone.getDeviceController().getFeaturePowerup().sendVideoSettingsAutorecord((byte) (videoAutoRecord ? 1 : 0));
+        bebop2Drone.getDeviceController().getFeatureARDrone3().sendPilotingSettingsPitchMode(pitchMode ?
+                ARCOMMANDS_ARDRONE3_PILOTINGSETTINGS_PITCHMODE_VALUE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSETTINGS_PITCHMODE_VALUE_INVERTED :
+                ARCOMMANDS_ARDRONE3_PILOTINGSETTINGS_PITCHMODE_VALUE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSETTINGS_PITCHMODE_VALUE_NORMAL);
+        bebop2Drone.getDeviceController().getFeatureARDrone3().sendGPSSettingsHomeType(ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_ENUM.ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_TAKEOFF);
+        bebop2Drone.getDeviceController().getFeatureARDrone3().sendGPSSettingsReturnHomeDelay(delay);
+
+        panoramaMaker = new Thread(){
+            @Override
+            public void run(){
+                try {
+                    boolean wasRecording = isRecording;
+                    if(wasRecording)
+                        bebop2Drone.getDeviceController().getFeatureARDrone3().sendMediaRecordVideoV2(ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM.ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_STOP);
+                    bebop2Drone.getDeviceController().getFeatureARDrone3().sendMediaRecordVideoV2(ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM.ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_START);
+                    synchronized(this) {
+                        bebop2Drone.setFlag((byte) 1);
+                        bebop2Drone.setYaw((byte) 100);
+                        wait(3000);
+                        bebop2Drone.setFlag((byte) 0);
+                        bebop2Drone.setYaw((byte) 0);
+                    }
+                    bebop2Drone.getDeviceController().getFeatureARDrone3().sendMediaRecordVideoV2(ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM.ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_STOP);
+                    if(wasRecording)
+                        bebop2Drone.getDeviceController().getFeatureARDrone3().sendMediaRecordVideoV2(ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM.ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_START);
+                }
+                catch(InterruptedException ex) {
+                    bebop2Drone.setFlag((byte) 0);
+                    bebop2Drone.setYaw((byte) 0);
+                }
+            }
+        };
     }
 
     @Override
@@ -159,6 +196,13 @@ public class Bebop2Activity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.panoramaButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                panoramaMaker.start();
+            }
+        });
+
         downloadBt = (FloatingActionButton)findViewById(R.id.downloadButton);
         downloadBt.setEnabled(false);
         downloadBt.setOnClickListener(new View.OnClickListener() {
@@ -182,6 +226,7 @@ public class Bebop2Activity extends AppCompatActivity {
         findViewById(R.id.homeButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                bebop2Drone.setFlag((byte) 0);
                 bebop2Drone.getDeviceController().getFeatureARDrone3().sendPilotingNavigateHome((byte) 1);
             }
         });
@@ -242,7 +287,6 @@ public class Bebop2Activity extends AppCompatActivity {
         ((JoystickView)findViewById(R.id.leftJoystick)).setOnMoveListener(new JoystickView.OnMoveListener() {
             @Override
             public void onMove(int angle, int strength) {
-
                 double leftRadius = (Math.PI*(angle%90))/180;
                 switch(angle/90) {
                     case 0:

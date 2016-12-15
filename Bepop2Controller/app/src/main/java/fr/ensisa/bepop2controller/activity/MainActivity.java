@@ -25,7 +25,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parrot.arsdk.ARSDK;
-import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSETTINGS_PITCHMODE_VALUE_ENUM;
 import com.parrot.arsdk.ardiscovery.ARDISCOVERY_PRODUCT_ENUM;
 import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
 import com.parrot.arsdk.ardiscovery.ARDiscoveryService;
@@ -42,7 +41,10 @@ import fr.ensisa.bepop2controller.view.Bebop2VideoView;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+
     public static final String EXTRA_DEVICE_SERVICE = "EXTRA_DEVICE_SERVICE";
+    public static final String VIDEO_OPTION = "VIDEO_OPTION";
+    public static final String PITCH_OPTION = "PITCH_OPTION";
 
     private static final String[] PERMISSIONS_NEEDED = new String[]{
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -56,8 +58,11 @@ public class MainActivity extends AppCompatActivity {
     private final List<ARDiscoveryDeviceService> dronesList = new ArrayList<>();
     private DeviceAdapter adapter;
 
-    private byte videoAutoRecord = (byte) 0;
-    private ARCOMMANDS_ARDRONE3_PILOTINGSETTINGS_PITCHMODE_VALUE_ENUM pitchMode = ARCOMMANDS_ARDRONE3_PILOTINGSETTINGS_PITCHMODE_VALUE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSETTINGS_PITCHMODE_VALUE_NORMAL;
+    private boolean videoAutoRecord = true;
+    private boolean pitchMode = false;
+
+    private Switch videoAutoRecordSwitch;
+    private Switch pitchModeSwitch;
 
     static {
         ARSDK.loadSDKLibs();
@@ -107,6 +112,8 @@ public class MainActivity extends AppCompatActivity {
 
                 if(intent != null) {
                     intent.putExtra(EXTRA_DEVICE_SERVICE, service);
+                    intent.putExtra(VIDEO_OPTION, videoAutoRecord);
+                    intent.putExtra(PITCH_OPTION, pitchMode);
                     startActivity(intent);
                 }
 
@@ -137,26 +144,25 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.optionsButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(new ContextThemeWrapper(MainActivity.this, R.style.AlertTheme));
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(new ContextThemeWrapper(MainActivity.this, R.style.AppTheme));
                 LayoutInflater inflater = MainActivity.this.getLayoutInflater();
                 final View dialogView = inflater.inflate(R.layout.options, null);
+                videoAutoRecordSwitch = (Switch) dialogView.findViewById(R.id.videoAutoModeSwitch);
+                pitchModeSwitch = (Switch) dialogView.findViewById(R.id.pitchModeSwitch);
                 dialogBuilder.setView(dialogView);
-                dialogBuilder.setTitle("Options");
+                dialogBuilder.setTitle(getResources().getString(R.string.options));
+                videoAutoRecordSwitch.setChecked(videoAutoRecord);
+                pitchModeSwitch.setChecked(pitchMode);
                 dialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if(((Switch) dialogView.findViewById(R.id.switch1)).isChecked())
-                            videoAutoRecord = (byte) 1;
-                        else
-                            videoAutoRecord = (byte) 0;
-                        if(((Switch) dialogView.findViewById(R.id.switch2)).isChecked())
-                            pitchMode = ARCOMMANDS_ARDRONE3_PILOTINGSETTINGS_PITCHMODE_VALUE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSETTINGS_PITCHMODE_VALUE_INVERTED;
-                        else
-                            pitchMode = ARCOMMANDS_ARDRONE3_PILOTINGSETTINGS_PITCHMODE_VALUE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSETTINGS_PITCHMODE_VALUE_NORMAL;
+                        videoAutoRecord = videoAutoRecordSwitch.isChecked();
+                        pitchMode = pitchModeSwitch.isChecked();
                     }
                 });
 
                 AlertDialog alertDialog = dialogBuilder.create();
+                alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.style_options_and_help);
                 alertDialog.show();
             }
         });
@@ -164,10 +170,22 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.helpButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, DroneTestActivity.class));
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(new ContextThemeWrapper(MainActivity.this, R.style.AppTheme));
+                LayoutInflater inflater = MainActivity.this.getLayoutInflater();
+                final View dialogView = inflater.inflate(R.layout.help, null);
+                dialogBuilder.setView(dialogView);
+                dialogBuilder.setTitle(getResources().getString(R.string.help));
+                dialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) { }
+                });
+
+                AlertDialog alertDialog = dialogBuilder.create();
+                alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.style_options_and_help);
+                alertDialog.show();
+                //startActivity(new Intent(MainActivity.this, ControllerTestActivity.class));
             }
         });
-
     }
 
     @Override

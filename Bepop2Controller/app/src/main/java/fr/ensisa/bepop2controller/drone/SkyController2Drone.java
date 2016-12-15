@@ -163,6 +163,10 @@ public class SkyController2Drone {
         return flyingState;
     }
 
+    public ARDeviceController getDeviceController() {
+        return deviceController;
+    }
+
     public void takeOff() {
         if((deviceController != null) &&
                 (skyController2State.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)) &&

@@ -1,6 +1,7 @@
 <resources>
     <string name="take_off">Décoller</string>
     <string name="land">Atterrir</string>
+    <string name="emergency">Urgence</string>
     <string name="connecting">Connexion...</string>
     <string name="disconnecting">Déconnexion...</string>
     <string name="downloading_medias">Téléchargement en cours</string>
@@ -14,5 +15,8 @@
     <string name="device_not_recognized">Appareil non reconnu</string>
 
     <string name="options">Options</string>
-    <string name="help">Help</string>
+    <string name="video_option">Autoriser l\'enregistrement auto</string>
+    <string name="pitch_option">Inverser le tangage</string>
+    <string name="help">Aide</string>
+    <string name="help_text">Pour commencer à piloter un drone, cliquez sur un élément de la liste. Si elle est vide, vérifiez que vous êtes bien connecté par wifi à un drone ou par usb à un contrôleur. Notez que cette application ne peut détecter que les drones Bebop2 et les contrôleurs SkyController2 de Parrot.</string>
 </resources>

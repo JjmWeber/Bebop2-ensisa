@@ -15,8 +15,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_ANIMATIONS_FLIP_DIRECTION_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSETTINGS_PITCHMODE_VALUE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM;
 import com.parrot.arsdk.arcontroller.ARCONTROLLER_DEVICE_STATE_ENUM;
 import com.parrot.arsdk.arcontroller.ARControllerCodec;
@@ -48,11 +51,20 @@ public class SkyController2Activity extends AppCompatActivity {
     private TextView speedTextView;
     private ProgressBar loadingAnimation;
 
-    private Button takeOffAndLandBt;
+    private FloatingActionButton frontFlipBt;
+    private FloatingActionButton backFlipBt;
+    private FloatingActionButton leftFlipBt;
+    private FloatingActionButton rightFlipBt;
+    private FloatingActionButton flipBt;
+
     private FloatingActionButton downloadBt;
 
     private int nbMaxDownload;
     private int currentDownloadIndex;
+    private boolean isRecording = false;
+    private boolean isFlipping = false;
+
+    private Thread panoramaMaker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,8 +74,40 @@ public class SkyController2Activity extends AppCompatActivity {
         initIHM();
 
         ARDiscoveryDeviceService service = getIntent().getParcelableExtra(MainActivity.EXTRA_DEVICE_SERVICE);
+        boolean videoAutoRecord = getIntent().getParcelableExtra(MainActivity.VIDEO_OPTION);
+        boolean pitchMode = getIntent().getParcelableExtra(MainActivity.PITCH_OPTION);
         skyController2Drone = new SkyController2Drone(this, service);
         skyController2Drone.addListener(skyController2Listener);
+        skyController2Drone.getDeviceController().getFeaturePowerup().sendVideoSettingsAutorecord((byte) (videoAutoRecord ? 1 : 0));
+        skyController2Drone.getDeviceController().getFeatureARDrone3().sendPilotingSettingsPitchMode(pitchMode ?
+                ARCOMMANDS_ARDRONE3_PILOTINGSETTINGS_PITCHMODE_VALUE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSETTINGS_PITCHMODE_VALUE_INVERTED :
+                ARCOMMANDS_ARDRONE3_PILOTINGSETTINGS_PITCHMODE_VALUE_ENUM.ARCOMMANDS_ARDRONE3_PILOTINGSETTINGS_PITCHMODE_VALUE_NORMAL);
+
+        panoramaMaker = new Thread(){
+            @Override
+            public void run(){
+                try {
+                    boolean wasRecording = isRecording;
+                    if(wasRecording)
+                        skyController2Drone.getDeviceController().getFeatureARDrone3().sendMediaRecordVideoV2(ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM.ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_STOP);
+                    skyController2Drone.getDeviceController().getFeatureARDrone3().sendMediaRecordVideoV2(ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM.ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_START);
+                    synchronized(this) {
+                        skyController2Drone.getDeviceController().getFeatureARDrone3().setPilotingPCMDFlag((byte) 1);
+                        skyController2Drone.getDeviceController().getFeatureARDrone3().setPilotingPCMDYaw((byte) 100);
+                        wait(3000);
+                        skyController2Drone.getDeviceController().getFeatureARDrone3().setPilotingPCMDFlag((byte) 0);
+                        skyController2Drone.getDeviceController().getFeatureARDrone3().setPilotingPCMDYaw((byte) 0);
+                    }
+                    skyController2Drone.getDeviceController().getFeatureARDrone3().sendMediaRecordVideoV2(ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM.ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_STOP);
+                    if(wasRecording)
+                        skyController2Drone.getDeviceController().getFeatureARDrone3().sendMediaRecordVideoV2(ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM.ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_START);
+                }
+                catch(InterruptedException ex) {
+                    skyController2Drone.getDeviceController().getFeatureARDrone3().setPilotingPCMDFlag((byte) 0);
+                    skyController2Drone.getDeviceController().getFeatureARDrone3().setPilotingPCMDYaw((byte) 0);
+                }
+            }
+        };
     }
 
     @Override
@@ -113,25 +157,56 @@ public class SkyController2Activity extends AppCompatActivity {
             }
         });
 
-        takeOffAndLandBt = (Button) findViewById(R.id.takeOffAndLandButton);
-        takeOffAndLandBt.setOnClickListener(new View.OnClickListener() {
+        frontFlipBt = (FloatingActionButton) findViewById(R.id.frontFlipButton);
+        frontFlipBt.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
-                switch (skyController2Drone.getFlyingState()) {
-                    case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_LANDED:
-                        skyController2Drone.takeOff();
-                        break;
-                    case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING:
-                    case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING:
-                        skyController2Drone.land();
-                        break;
-                    default:
-                }
+                skyController2Drone.getDeviceController().getFeatureARDrone3().sendAnimationsFlip((ARCOMMANDS_ARDRONE3_ANIMATIONS_FLIP_DIRECTION_ENUM.ARCOMMANDS_ARDRONE3_ANIMATIONS_FLIP_DIRECTION_FRONT));
             }
         });
 
-        findViewById(R.id.cameraButton).setOnClickListener(new View.OnClickListener() {
+        backFlipBt = (FloatingActionButton) findViewById(R.id.backFlipButton);
+        backFlipBt.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
-                skyController2Drone.takePicture();
+                skyController2Drone.getDeviceController().getFeatureARDrone3().sendAnimationsFlip((ARCOMMANDS_ARDRONE3_ANIMATIONS_FLIP_DIRECTION_ENUM.ARCOMMANDS_ARDRONE3_ANIMATIONS_FLIP_DIRECTION_BACK));
+            }
+        });
+
+        leftFlipBt = (FloatingActionButton) findViewById(R.id.leftFlipButton);
+        leftFlipBt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                skyController2Drone.getDeviceController().getFeatureARDrone3().sendAnimationsFlip((ARCOMMANDS_ARDRONE3_ANIMATIONS_FLIP_DIRECTION_ENUM.ARCOMMANDS_ARDRONE3_ANIMATIONS_FLIP_DIRECTION_LEFT));
+            }
+        });
+
+        rightFlipBt = (FloatingActionButton) findViewById(R.id.rightFlipButton);
+        rightFlipBt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                skyController2Drone.getDeviceController().getFeatureARDrone3().sendAnimationsFlip((ARCOMMANDS_ARDRONE3_ANIMATIONS_FLIP_DIRECTION_ENUM.ARCOMMANDS_ARDRONE3_ANIMATIONS_FLIP_DIRECTION_RIGHT));
+            }
+        });
+
+        flipBt = (FloatingActionButton) findViewById(R.id.flipButton);
+        flipBt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!isFlipping) {
+                    frontFlipBt.setVisibility(View.VISIBLE);
+                    backFlipBt.setVisibility(View.VISIBLE);
+                    leftFlipBt.setVisibility(View.VISIBLE);
+                    rightFlipBt.setVisibility(View.VISIBLE);
+                    flipBt.setImageDrawable(SkyController2Activity.this.getDrawable(R.drawable.ic_cancel));
+                } else {
+                    frontFlipBt.setVisibility(View.INVISIBLE);
+                    backFlipBt.setVisibility(View.INVISIBLE);
+                    leftFlipBt.setVisibility(View.INVISIBLE);
+                    rightFlipBt.setVisibility(View.INVISIBLE);
+                    flipBt.setImageDrawable(SkyController2Activity.this.getDrawable(R.drawable.ic_flip));
+                }
+                isFlipping = !isFlipping;
             }
         });
 
@@ -309,22 +384,7 @@ public class SkyController2Activity extends AppCompatActivity {
 
         @Override
         public void onPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state) {
-            switch (state) {
-                case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_LANDED:
-                    takeOffAndLandBt.setText(R.string.take_off);
-                    takeOffAndLandBt.setEnabled(true);
-                    downloadBt.setEnabled(true);
-                    break;
-                case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING:
-                case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING:
-                    takeOffAndLandBt.setText(R.string.land);
-                    takeOffAndLandBt.setEnabled(true);
-                    downloadBt.setEnabled(false);
-                    break;
-                default:
-                    takeOffAndLandBt.setEnabled(false);
-                    downloadBt.setEnabled(false);
-            }
+
         }
 
         @Override
@@ -335,7 +395,16 @@ public class SkyController2Activity extends AppCompatActivity {
 
         @Override
         public void onVideoStateChanged(ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_ENUM state) {
-
+            switch(state) {
+                case ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_STARTED:
+                    Toast.makeText(getApplicationContext(), R.string.video_started, Toast.LENGTH_SHORT).show();
+                    isRecording = true;
+                    Log.i(TAG, "Video started recording");
+                case ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_STOPPED:
+                    Toast.makeText(getApplicationContext(), R.string.video_stopped, Toast.LENGTH_SHORT).show();
+                    isRecording = false;
+                    Log.i(TAG, "Video stopped recording");
+            }
         }
 
         @Override

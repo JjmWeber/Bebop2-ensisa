@@ -3,6 +3,7 @@
 
     <string name="take_off">Take Off</string>
     <string name="land">Land</string>
+    <string name="emergency">Emergency</string>
     <string name="connecting">Connecting...</string>
     <string name="disconnecting">Disconnecting...</string>
     <string name="downloading_medias">Downloading medias</string>
@@ -21,9 +22,10 @@
     <string name="device_not_recognized">Device not recognized</string>
 
     <string name="options">Options</string>
-    <string name="video_option">Options</string>
-    <string name="_option">Options</string>
+    <string name="video_option">Enable autorecord</string>
+    <string name="pitch_option">Invert pitch direction</string>
     <string name="help">Help</string>
+    <string name="help_text">To start using a drone, click on an element in the list. If the list is empty, verify that you\'re connected by wifi to a drone, or by usb to a controller. Please note that this application can only detect Bebop2 drones and SkyController2 controllers from Parrot.</string>
     <string name="about" translatable="false">Bebop2 Controller\nVersion %1$s</string>
     <string name="aboutNoVersion" translatable="false">Bebop2 Controller\nUnknown Version</string>
 </resources>

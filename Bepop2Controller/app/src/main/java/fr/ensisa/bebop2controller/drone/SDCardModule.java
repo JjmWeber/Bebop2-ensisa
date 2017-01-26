@@ -1,4 +1,4 @@
-package fr.ensisa.bepop2controller.drone;
+package fr.ensisa.bebop2controller.drone;
 
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -23,11 +23,11 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
+@SuppressWarnings("WeakerAccess")
 class SDCardModule {
 
-    private static final String TAG = "SDCardModule";
-    private static final String DRONE_MEDIA_FOLDER = "internal_000";
-    private static final String MOBILE_MEDIA_FOLDER = "/ARSDKMedias/";
+    private static final String TAG = "SDCardModule", DRONE_MEDIA_FOLDER = "internal_000",
+            MOBILE_MEDIA_FOLDER = "/ARSDKMedias/";
 
     interface Listener {
         void onMatchingMediasFound(int nbMedias);
@@ -39,17 +39,18 @@ class SDCardModule {
 
     private final List<Listener> listeners;
 
+    private boolean threadIsRunning, isCancelled;
+    private int currentDownloadIndex, nbMediasToDownload;
     private ARDataTransferManager dataTransferManager;
+    @SuppressWarnings("FieldCanBeLocal")
+    private ARUtilsManager ftpList, ftpQueue;
 
-    private boolean threadIsRunning;
-    private boolean isCancelled;
-
-    private int nbMediasToDownload;
-    private int currentDownloadIndex;
-
-    SDCardModule(@NonNull ARUtilsManager ftpListManager, @NonNull ARUtilsManager ftpQueueManager) {
+    public SDCardModule(@NonNull ARUtilsManager ftpListManager, @NonNull ARUtilsManager ftpQueueManager) {
         threadIsRunning = false;
         listeners = new ArrayList<>();
+
+        ftpList = ftpListManager;
+        ftpQueue = ftpQueueManager;
 
         ARDATATRANSFER_ERROR_ENUM result = ARDATATRANSFER_ERROR_ENUM.ARDATATRANSFER_OK;
         try {
@@ -59,57 +60,58 @@ class SDCardModule {
             result = ARDATATRANSFER_ERROR_ENUM.ARDATATRANSFER_ERROR;
         }
 
-        if(result == ARDATATRANSFER_ERROR_ENUM.ARDATATRANSFER_OK) {
+        if (result == ARDATATRANSFER_ERROR_ENUM.ARDATATRANSFER_OK) {
             String externalDirectory = Environment.getExternalStorageDirectory().toString().concat(MOBILE_MEDIA_FOLDER);
+
             File f = new File(externalDirectory);
-            
             if(!(f.exists() && f.isDirectory())) {
                 boolean success = f.mkdir();
-                if(!success)
+                if (!success)
                     Log.e(TAG, "Failed to create the folder " + externalDirectory);
             }
-            
             try {
-                dataTransferManager.getARDataTransferMediasDownloader().createMediasDownloader(ftpListManager, ftpQueueManager, DRONE_MEDIA_FOLDER, externalDirectory);
+                dataTransferManager.getARDataTransferMediasDownloader().createMediasDownloader(ftpList, ftpQueue, DRONE_MEDIA_FOLDER, externalDirectory);
             } catch (ARDataTransferException e) {
                 Log.e(TAG, "Exception", e);
                 result = e.getError();
             }
         }
 
-        if(result != ARDATATRANSFER_ERROR_ENUM.ARDATATRANSFER_OK) {
+        if (result != ARDATATRANSFER_ERROR_ENUM.ARDATATRANSFER_OK) {
             dataTransferManager.dispose();
             dataTransferManager = null;
         }
     }
 
-    void addListener(Listener listener) {
+    public void addListener(Listener listener) {
         listeners.add(listener);
     }
 
-    void removeListener(Listener listener) {
+    @SuppressWarnings("unused")
+    public void removeListener(Listener listener) {
         listeners.remove(listener);
     }
 
-    void getFlightMedias(final String runId) {
-        if(!threadIsRunning) {
+    public void getFlightMedias(final String runId) {
+        if (!threadIsRunning) {
             threadIsRunning = true;
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     ArrayList<ARDataTransferMedia> mediaList = getMediaList();
+
                     ArrayList<ARDataTransferMedia> mediasFromRun = null;
                     nbMediasToDownload = 0;
-                    
-                    if((mediaList != null) && !isCancelled) {
+                    if ((mediaList != null) && !isCancelled) {
                         mediasFromRun = getRunIdMatchingMedias(mediaList, runId);
                         nbMediasToDownload = mediasFromRun.size();
                     }
 
                     notifyMatchingMediasFound(nbMediasToDownload);
 
-                    if((mediasFromRun != null) && (nbMediasToDownload != 0) && !isCancelled)
+                    if ((mediasFromRun != null) && (nbMediasToDownload != 0) && !isCancelled) {
                         downloadMedias(mediasFromRun);
+                    }
 
                     threadIsRunning = false;
                     isCancelled = false;
@@ -118,17 +120,17 @@ class SDCardModule {
         }
     }
 
-    void getTodaysFlightMedias() {
-        if(!threadIsRunning) {
+    public void getTodaysFlightMedias() {
+        if (!threadIsRunning) {
             threadIsRunning = true;
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     ArrayList<ARDataTransferMedia> mediaList = getMediaList();
+
                     ArrayList<ARDataTransferMedia> mediasFromDate = null;
                     nbMediasToDownload = 0;
-
-                    if((mediaList != null) && !isCancelled) {
+                    if ((mediaList != null) && !isCancelled) {
                         GregorianCalendar today = new GregorianCalendar();
                         mediasFromDate = getDateMatchingMedias(mediaList, today);
                         nbMediasToDownload = mediasFromDate.size();
@@ -136,7 +138,7 @@ class SDCardModule {
 
                     notifyMatchingMediasFound(nbMediasToDownload);
 
-                    if((mediasFromDate != null) && (nbMediasToDownload != 0) && !isCancelled)
+                    if ((mediasFromDate != null) && (nbMediasToDownload != 0) && !isCancelled)
                         downloadMedias(mediasFromDate);
 
                     threadIsRunning = false;
@@ -146,51 +148,50 @@ class SDCardModule {
         }
     }
 
-    void cancelGetFlightMedias() {
-        if(threadIsRunning) {
+    public void cancelGetFlightMedias() {
+        if (threadIsRunning) {
             isCancelled = true;
             ARDataTransferMediasDownloader mediasDownloader = null;
-
-            if(dataTransferManager != null)
+            if (dataTransferManager != null)
                 mediasDownloader = dataTransferManager.getARDataTransferMediasDownloader();
 
-            if(mediasDownloader != null)
+            if (mediasDownloader != null)
                 mediasDownloader.cancelQueueThread();
         }
     }
 
     private ArrayList<ARDataTransferMedia> getMediaList() {
         ArrayList<ARDataTransferMedia> mediaList = null;
-        ARDataTransferMediasDownloader mediasDownloader = null;
 
-        if(dataTransferManager != null)
+        ARDataTransferMediasDownloader mediasDownloader = null;
+        if (dataTransferManager != null)
             mediasDownloader = dataTransferManager.getARDataTransferMediasDownloader();
 
-        if(mediasDownloader != null)
+        if (mediasDownloader != null)
             try {
                 int mediaListCount = mediasDownloader.getAvailableMediasSync(false);
                 mediaList = new ArrayList<>(mediaListCount);
-                for (int i = 0; ((i < mediaListCount) && !isCancelled) ; i++) {
+                for (int i = 0; ((i < mediaListCount) && !isCancelled) ; i++)
+                {
                     ARDataTransferMedia currentMedia = mediasDownloader.getAvailableMediaAtIndex(i);
                     mediaList.add(currentMedia);
                 }
-            }
-            catch (ARDataTransferException e) {
+            } catch (ARDataTransferException e) {
                 Log.e(TAG, "Exception", e);
                 mediaList = null;
             }
         return mediaList;
     }
 
-    private @NonNull ArrayList<ARDataTransferMedia> getRunIdMatchingMedias(ArrayList<ARDataTransferMedia> mediaList,
-                                                                           String runId) {
+    private @NonNull ArrayList<ARDataTransferMedia> getRunIdMatchingMedias(
+            ArrayList<ARDataTransferMedia> mediaList,
+            String runId) {
         ArrayList<ARDataTransferMedia> matchingMedias = new ArrayList<>();
-
         for (ARDataTransferMedia media : mediaList) {
-            if(media.getName().contains(runId))
+            if (media.getName().contains(runId))
                 matchingMedias.add(media);
 
-            if(isCancelled)
+            if (isCancelled)
                 break;
         }
 
@@ -202,13 +203,13 @@ class SDCardModule {
         ArrayList<ARDataTransferMedia> matchingMedias = new ArrayList<>();
         Calendar mediaCal = new GregorianCalendar();
         SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HHmmss", Locale.getDefault());
-
         for (ARDataTransferMedia media : mediaList) {
             String dateStr = media.getDate();
             try {
                 Date mediaDate = dateFormatter.parse(dateStr);
                 mediaCal.setTime(mediaDate);
-                if((mediaCal.get(Calendar.DAY_OF_MONTH) == (matchingCal.get(Calendar.DAY_OF_MONTH))) &&
+
+                if ((mediaCal.get(Calendar.DAY_OF_MONTH) == (matchingCal.get(Calendar.DAY_OF_MONTH))) &&
                         (mediaCal.get(Calendar.MONTH) == (matchingCal.get(Calendar.MONTH))) &&
                         (mediaCal.get(Calendar.YEAR) == (matchingCal.get(Calendar.YEAR)))) {
                     matchingMedias.add(media);
@@ -217,80 +218,79 @@ class SDCardModule {
                 Log.e(TAG, "Exception", e);
             }
 
-            if(isCancelled)
+            if (isCancelled)
                 break;
         }
+
         return matchingMedias;
     }
 
     private void downloadMedias(@NonNull ArrayList<ARDataTransferMedia> matchingMedias) {
         currentDownloadIndex = 1;
-        ARDataTransferMediasDownloader mediasDownloader = null;
 
-        if(dataTransferManager != null)
+        ARDataTransferMediasDownloader mediasDownloader = null;
+        if (dataTransferManager != null)
             mediasDownloader = dataTransferManager.getARDataTransferMediasDownloader();
 
-        if(mediasDownloader != null) {
+        if (mediasDownloader != null) {
             for (ARDataTransferMedia media : matchingMedias) {
                 try {
-                    mediasDownloader.addMediaToQueue(media, dlProgressListener, null, dlCompletionListener, null);
+                    mediasDownloader.addMediaToQueue(media, mDLProgressListener, null, mDLCompletionListener, null);
                 } catch (ARDataTransferException e) {
                     Log.e(TAG, "Exception", e);
                 }
 
-                if(isCancelled)
+                if (isCancelled)
                     break;
             }
 
-            if(!isCancelled)
+            if (!isCancelled)
                 mediasDownloader.getDownloaderQueueRunnable().run();
         }
     }
 
     private void notifyMatchingMediasFound(int nbMedias) {
-        List<Listener> listeners = new ArrayList<>(this.listeners);
-        for (Listener listener : listeners)
+        for (Listener listener : listeners) {
             listener.onMatchingMediasFound(nbMedias);
+        }
     }
 
     private void notifyDownloadProgressed(String mediaName, int progress) {
-        List<Listener> listeners = new ArrayList<>(this.listeners);
-        for (Listener listener : listeners)
+        for (Listener listener : listeners) {
             listener.onDownloadProgressed(mediaName, progress);
+        }
     }
 
     private void notifyDownloadComplete(String mediaName) {
-        List<Listener> listeners = new ArrayList<>(this.listeners);
-        for (Listener listener : listeners)
+        for (Listener listener : listeners) {
             listener.onDownloadComplete(mediaName);
+        }
     }
 
-    private final ARDataTransferMediasDownloaderProgressListener dlProgressListener = new ARDataTransferMediasDownloaderProgressListener() {
-        private int lastProgressSent = -1;
-
+    private final ARDataTransferMediasDownloaderProgressListener mDLProgressListener = new ARDataTransferMediasDownloaderProgressListener() {
+        private int mLastProgressSent = -1;
         @Override
         public void didMediaProgress(Object arg, ARDataTransferMedia media, float percent) {
             final int progressInt = (int) Math.floor(percent);
-            if(lastProgressSent != progressInt) {
-                lastProgressSent = progressInt;
+            if (mLastProgressSent != progressInt) {
+                mLastProgressSent = progressInt;
                 notifyDownloadProgressed(media.getName(), progressInt);
             }
         }
     };
 
-    private final ARDataTransferMediasDownloaderCompletionListener dlCompletionListener = new ARDataTransferMediasDownloaderCompletionListener() {
+    private final ARDataTransferMediasDownloaderCompletionListener mDLCompletionListener = new ARDataTransferMediasDownloaderCompletionListener() {
         @Override
         public void didMediaComplete(Object arg, ARDataTransferMedia media, ARDATATRANSFER_ERROR_ENUM error) {
             notifyDownloadComplete(media.getName());
-            currentDownloadIndex++;
 
-            if(currentDownloadIndex > nbMediasToDownload) {
+            currentDownloadIndex ++;
+            if (currentDownloadIndex > nbMediasToDownload ) {
                 ARDataTransferMediasDownloader mediasDownloader = null;
-
-                if(dataTransferManager != null)
+                if (dataTransferManager != null)
                     mediasDownloader = dataTransferManager.getARDataTransferMediasDownloader();
 
-                if(mediasDownloader != null)
+                if (mediasDownloader != null)
                     mediasDownloader.cancelQueueThread();
             }
         }

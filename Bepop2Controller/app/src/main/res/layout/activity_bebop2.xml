@@ -1,26 +1,27 @@
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="fr.ensisa.bepop2controller.activity.Bebop2Activity"
-
     android:id="@+id/bebop2ActivityLayout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
 
-    <fr.ensisa.bepop2controller.view.Bebop2VideoView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="fr.ensisa.bebop2controller.activity.Bebop2Activity">
+
+    <fr.ensisa.bebop2controller.view.Bebop2VideoView
         android:id="@+id/videoView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:layout_below="@+id/barLayout" />
 
     <LinearLayout
         android:id="@+id/barLayout"
-        android:orientation="horizontal"
-        android:foreground="@color/bar_background"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true" >
+        android:layout_alignParentTop="true"
+        android:background="@color/bar_background"
+        android:orientation="horizontal">
 
         <ImageView
             android:id="@+id/batteryIconView"
@@ -33,9 +34,9 @@
             android:id="@+id/batteryTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
             android:text="@string/no_percentage"
-            android:textColor="@color/primary_high"
-            android:layout_marginEnd="20dp" />
+            android:textColor="@color/primary_high" />
 
         <ImageView
             android:id="@+id/altitudeIconView"
@@ -48,9 +49,9 @@
             android:id="@+id/altitudeTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
             android:text="@string/no_distance"
-            android:textColor="@color/primary_high"
-            android:layout_marginEnd="20dp" />
+            android:textColor="@color/primary_high" />
 
         <ImageView
             android:id="@+id/speedIconView"
@@ -63,58 +64,58 @@
             android:id="@+id/speedTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
             android:text="@string/no_speed"
-            android:textColor="@color/primary_high"
-            android:layout_marginEnd="20dp" />
+            android:textColor="@color/primary_high" />
 
     </LinearLayout>
 
     <ImageView
-        android:id="@+id/leftJoystickUpButton"
+        android:id="@+id/leftJoystickUpView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="60dp"
+        android:layout_alignParentStart="true"
         android:layout_marginBottom="110dp"
+        android:layout_marginStart="60dp"
         app:srcCompat="@drawable/ic_forward"
         tools:ignore="ContentDescription" />
 
     <ImageView
-        android:id="@+id/leftJoystickBackButton"
+        android:id="@+id/leftJoystickDownView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="60dp"
+        android:layout_alignParentStart="true"
         android:layout_marginBottom="10dp"
+        android:layout_marginStart="60dp"
         app:srcCompat="@drawable/ic_backward"
         tools:ignore="ContentDescription" />
 
     <ImageView
-        android:id="@+id/leftJoystickLeftButton"
-        app:srcCompat="@drawable/ic_left"
+        android:id="@+id/leftJoystickLeftView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="10dp"
+        android:layout_alignParentStart="true"
         android:layout_marginBottom="60dp"
+        android:layout_marginStart="10dp"
+        app:srcCompat="@drawable/ic_left"
         tools:ignore="ContentDescription" />
 
     <ImageView
-        android:id="@+id/leftJoystickRightButton"
+        android:id="@+id/leftJoystickRightView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="110dp"
+        android:layout_alignParentStart="true"
         android:layout_marginBottom="60dp"
+        android:layout_marginStart="110dp"
         app:srcCompat="@drawable/ic_right"
         tools:ignore="ContentDescription" />
 
     <ImageView
-        android:id="@+id/rightJoystickUpButton"
+        android:id="@+id/rightJoystickUpView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -125,7 +126,7 @@
         tools:ignore="ContentDescription" />
 
     <ImageView
-        android:id="@+id/rightJoystickDownButton"
+        android:id="@+id/rightJoystickDownView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -136,7 +137,7 @@
         tools:ignore="ContentDescription" />
 
     <ImageView
-        android:id="@+id/rightJoystickLeftButton"
+        android:id="@+id/rightJoystickLeftView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -147,7 +148,7 @@
         tools:ignore="ContentDescription" />
 
     <ImageView
-        android:id="@+id/rightJoystickRightButton"
+        android:id="@+id/rightJoystickRightView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -161,14 +162,14 @@
         android:id="@+id/leftJoystick"
         android:layout_width="210dp"
         android:layout_height="210dp"
-        android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="-20dp"
+        android:layout_alignParentStart="true"
         android:layout_marginBottom="-20dp"
-        app:JV_buttonColor="@color/primary_high_transparent"
-        app:JV_borderColor="@color/primary_high_transparent"
+        android:layout_marginStart="-20dp"
         app:JV_backgroundColor="@color/joystick_background"
+        app:JV_borderColor="@color/primary_high_transparent"
         app:JV_borderWidth="2dp"
+        app:JV_buttonColor="@color/primary_high_transparent"
         app:JV_fixedCenter="true" />
 
     <io.github.controlwear.virtual.joystick.android.JoystickView
@@ -179,82 +180,83 @@
         android:layout_alignParentEnd="true"
         android:layout_marginBottom="-20dp"
         android:layout_marginEnd="-20dp"
-        app:JV_buttonColor="@color/primary_high_transparent"
-        app:JV_borderColor="@color/primary_high_transparent"
         app:JV_backgroundColor="@color/joystick_background"
+        app:JV_borderColor="@color/primary_high_transparent"
         app:JV_borderWidth="2dp"
+        app:JV_buttonColor="@color/primary_high_transparent"
         app:JV_fixedCenter="true" />
 
     <Button
         android:id="@+id/takeOffAndLandButton"
         android:layout_width="100dp"
         android:layout_height="40dp"
-        android:layout_margin="10dp"
         android:layout_below="@+id/barLayout"
         android:layout_centerHorizontal="true"
-        android:background="@drawable/style_take_off_and_land_button"
-        android:textStyle="normal|bold"
+        android:layout_margin="10dp"
+        android:background="@drawable/style_take_off_and_land"
+        android:text="@string/take_off"
         android:textColor="@color/primary_high"
-        android:text="@string/take_off" />
+        android:textSize="14sp"
+        android:textStyle="normal|bold" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/emergencyButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/barLayout"
         android:layout_alignParentStart="true"
+        android:layout_below="@+id/barLayout"
         android:layout_margin="10dp"
         android:clickable="true"
-        app:fabSize="mini"
         app:backgroundTint="@color/icon_background"
-        app:srcCompat="@drawable/ic_emergency" />
+        app:fabSize="mini"
+        app:srcCompat="@drawable/ic_lock" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/homeButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/barLayout"
-        android:layout_toEndOf="@+id/emergencyButton"
         android:layout_margin="10dp"
+        android:layout_toEndOf="@+id/emergencyButton"
         android:clickable="true"
-        app:fabSize="mini"
         app:backgroundTint="@color/icon_background"
+        app:fabSize="mini"
         app:srcCompat="@drawable/ic_home" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/downloadButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/barLayout"
+        android:layout_margin="10dp"
+        android:layout_toEndOf="@+id/homeButton"
+        android:clickable="true"
+        app:backgroundTint="@color/icon_background"
+        app:fabSize="mini"
+        app:srcCompat="@drawable/ic_download" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/flipButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/barLayout"
-        android:layout_toEndOf="@+id/homeButton"
         android:layout_margin="10dp"
+        android:layout_toEndOf="@+id/downloadButton"
         android:clickable="true"
-        app:fabSize="mini"
         app:backgroundTint="@color/icon_background"
+        app:fabSize="mini"
         app:srcCompat="@drawable/ic_flip" />
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/gpsButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/barLayout"
-        android:layout_toEndOf="@+id/flipButton"
-        android:layout_margin="10dp"
-        android:clickable="true"
-        app:fabSize="mini"
-        app:backgroundTint="@color/icon_background"
-        app:srcCompat="@drawable/ic_gps" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/cameraButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/barLayout"
         android:layout_alignParentEnd="true"
+        android:layout_below="@+id/barLayout"
         android:layout_margin="10dp"
         android:clickable="true"
-        app:fabSize="mini"
         app:backgroundTint="@color/icon_background"
+        app:fabSize="mini"
         app:srcCompat="@drawable/ic_camera" />
 
     <android.support.design.widget.FloatingActionButton
@@ -262,11 +264,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/barLayout"
-        android:layout_toStartOf="@+id/cameraButton"
         android:layout_margin="10dp"
+        android:layout_toStartOf="@+id/cameraButton"
         android:clickable="true"
-        app:fabSize="mini"
         app:backgroundTint="@color/icon_background"
+        app:fabSize="mini"
         app:srcCompat="@drawable/ic_video" />
 
     <android.support.design.widget.FloatingActionButton
@@ -274,24 +276,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/barLayout"
-        android:layout_toStartOf="@+id/videoButton"
         android:layout_margin="10dp"
+        android:layout_toStartOf="@+id/videoButton"
         android:clickable="true"
-        app:fabSize="mini"
         app:backgroundTint="@color/icon_background"
+        app:fabSize="mini"
         app:srcCompat="@drawable/ic_panorama" />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/downloadButton"
+        android:id="@+id/paramsButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/barLayout"
-        android:layout_toStartOf="@+id/panoramaButton"
         android:layout_margin="10dp"
+        android:layout_toStartOf="@+id/panoramaButton"
         android:clickable="true"
-        app:fabSize="mini"
         app:backgroundTint="@color/icon_background"
-        app:srcCompat="@drawable/ic_download" />
+        app:fabSize="mini"
+        app:srcCompat="@drawable/ic_settings" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/backFlipButton"
@@ -301,53 +303,62 @@
         android:layout_below="@+id/flipButton"
         android:clickable="true"
         android:visibility="invisible"
-        app:fabSize="mini"
         app:backgroundTint="@color/icon_background"
+        app:fabSize="mini"
         app:srcCompat="@drawable/ic_back_flip" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/rightFlipButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@+id/backFlipButton"
         android:layout_below="@+id/backFlipButton"
+        android:layout_toEndOf="@+id/backFlipButton"
         android:clickable="true"
         android:visibility="invisible"
-        app:fabSize="mini"
         app:backgroundTint="@color/icon_background"
+        app:fabSize="mini"
         app:srcCompat="@drawable/ic_right_flip" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/leftFlipButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toStartOf="@+id/backFlipButton"
         android:layout_below="@+id/backFlipButton"
+        android:layout_toStartOf="@+id/backFlipButton"
         android:clickable="true"
         android:visibility="invisible"
-        app:fabSize="mini"
         app:backgroundTint="@color/icon_background"
+        app:fabSize="mini"
         app:srcCompat="@drawable/ic_left_flip" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/frontFlipButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@+id/leftFlipButton"
         android:layout_below="@+id/rightFlipButton"
+        android:layout_toEndOf="@+id/leftFlipButton"
         android:clickable="true"
         android:visibility="invisible"
-        app:fabSize="mini"
         app:backgroundTint="@color/icon_background"
+        app:fabSize="mini"
         app:srcCompat="@drawable/ic_front_flip" />
+
+    <Chronometer
+        android:id="@+id/chronometer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_below="@+id/emergencyButton"
+        android:layout_centerHorizontal="true"
+        android:visibility="invisible" />
 
     <ImageView
         android:id="@+id/horizonImageView"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        app:srcCompat="@mipmap/pic_horizon"
-        tools:ignore="ContentDescription"
-        android:layout_width="300dp" />
+        android:layout_toEndOf="@+id/downloadButton"
+        android:layout_toStartOf="@+id/panoramaButton"
+        app:srcCompat="@drawable/horizon"
+        tools:ignore="ContentDescription" />
 
 </RelativeLayout>

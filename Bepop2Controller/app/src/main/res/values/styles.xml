@@ -1,10 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowFullscreen">true</item>
         <item name="colorAccent">@color/primary_high</item>
-        <item name="android:textColorPrimary">@color/primary_high</item>
+        <item name="colorPrimary">@color/primary_high</item>
     </style>
 
+    <style name="DialogTheme" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/primary_high</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textSize">18sp</item>
+    </style>
 </resources>

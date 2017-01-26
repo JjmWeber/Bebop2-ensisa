@@ -1,13 +1,12 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/itemDeviceLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
     android:background="@color/background"
     android:baselineAligned="false"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/deviceNameTextView"
@@ -16,17 +15,17 @@
         android:layout_margin="4dp"
         android:layout_marginStart="8dp"
         android:textColor="@color/primary_high"
-        android:textStyle="normal|bold"
-        android:textSize="24sp" />
+        android:textSize="24sp"
+        android:textStyle="normal|bold" />
 
     <TextView
         android:id="@+id/deviceTypeTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
+        android:fontFamily="sans-serif-smallcaps"
         android:textColor="@color/primary_medium"
-        android:textStyle="normal|italic"
         android:textSize="18sp"
-        android:fontFamily="sans-serif-smallcaps" />
+        android:textStyle="normal|italic" />
 
 </LinearLayout>

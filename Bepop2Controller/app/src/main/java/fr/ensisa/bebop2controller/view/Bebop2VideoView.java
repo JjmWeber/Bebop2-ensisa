@@ -1,4 +1,4 @@
-package fr.ensisa.bepop2controller.view;
+package fr.ensisa.bebop2controller.view;
 
 import android.content.Context;
 import android.media.MediaCodec;
@@ -19,26 +19,22 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Bebop2VideoView extends SurfaceView implements SurfaceHolder.Callback {
 
-    private static final String TAG = "Bepop2VideoView";
-    private static final String VIDEO_MIME_TYPE = "video/avc";
+    private static final String TAG = "Bebop2VideoView", VIDEO_MIME_TYPE = "video/avc";
     private static final int VIDEO_DEQUEUE_TIMEOUT = 33000;
+
+    private static int VIDEO_WIDTH = 640, VIDEO_HEIGHT = 360;
 
     public static void setVideoFormatDimensions(int width, int height) {
         VIDEO_WIDTH = width;
         VIDEO_HEIGHT = height;
     }
 
-    private MediaCodec mediaCodec;
-    private Lock readyLock;
-
     private boolean isCodecConfigured = false;
 
-    private ByteBuffer spsBuffer;
-    private ByteBuffer ppsBuffer;
+    private ByteBuffer spsBuffer, ppsBuffer;
     private ByteBuffer[] buffers;
-
-    private static int VIDEO_WIDTH = 640;
-    private static int VIDEO_HEIGHT = 360;
+    private Lock readyLock;
+    private MediaCodec mediaCodec;
 
     public Bebop2VideoView(Context context) {
         super(context);

@@ -1,6 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:height="@dimen/ic_button_dim" android:viewportHeight="24.0"
-    android:width="@dimen/ic_button_dim" android:viewportWidth="24.0" >
+    android:width="@dimen/button"
+    android:height="@dimen/button"
+    android:viewportHeight="24.0"
+    android:viewportWidth="24.0">
 
     <path
         android:fillColor="@color/primary_high"

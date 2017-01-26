@@ -1,4 +1,4 @@
-package fr.ensisa.bepop2controller.discovery;
+package fr.ensisa.bebop2controller.discovery;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -21,19 +21,18 @@ public class DroneDiscoverer {
 
     private static final String TAG = "DroneDiscoverer";
 
+    private final ARDiscoveryServicesDevicesListUpdatedReceiver ardiscoveryServicesDevicesListUpdatedReceiver;
+    private final List<ARDiscoveryDeviceService> matchingDrones;
+    private final List<Listener> listeners;
+    private final Context context;
+    @SuppressWarnings("SpellCheckingInspection")
+    private ServiceConnection ardiscoveryServiceConnection;
+    private ARDiscoveryService ardiscoveryService;
+    private boolean startDiscoveryAfterConnection;
+
     public interface Listener {
         void onDronesListUpdated(List<ARDiscoveryDeviceService> dronesList);
     }
-
-    private final List<Listener> listeners;
-    private final Context context;
-    private final List<ARDiscoveryDeviceService> matchingDrones;
-
-    private ARDiscoveryService ardiscoveryService;
-    private ServiceConnection ardiscoveryServiceConnection;
-    private final ARDiscoveryServicesDevicesListUpdatedReceiver ardiscoveryServicesDevicesListUpdatedReceiver;
-
-    private boolean startDiscoveryAfterConnection;
 
     public DroneDiscoverer(Context context) {
         this.context = context;
@@ -75,7 +74,6 @@ public class DroneDiscoverer {
             };
 
         if(ardiscoveryService == null) {
-            // if the discovery service doesn't exists, bind to it
             Intent i = new Intent(context, ARDiscoveryService.class);
             context.bindService(i, ardiscoveryServiceConnection, Context.BIND_AUTO_CREATE);
         }
@@ -129,7 +127,6 @@ public class DroneDiscoverer {
                 @Override
                 public void onServicesDevicesListUpdated() {
                     if(ardiscoveryService != null) {
-                        // clear current list
                         matchingDrones.clear();
                         List<ARDiscoveryDeviceService> deviceList = ardiscoveryService.getDeviceServicesArray();
 

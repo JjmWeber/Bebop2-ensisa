@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/optionsTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/dialog_margin"
+            android:text="@string/options"
+            android:textAlignment="center"
+            android:textAppearance="@style/DialogTheme"
+            android:textSize="24sp" />
+
+        <Switch
+            android:id="@+id/autoRecordSwitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/dialog_margin"
+            android:checked="true"
+            android:text="@string/auto_record"
+            android:textAppearance="@style/DialogTheme"
+            android:textColor="@color/primary_high" />
+
+        <TextView
+            android:id="@+id/linearSpeedLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/dialog_margin"
+            android:layout_marginStart="@dimen/dialog_margin"
+            android:layout_marginTop="@dimen/dialog_margin"
+            android:text="@string/linear_speed"
+            android:textAppearance="@style/DialogTheme" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <SeekBar
+                android:id="@+id/linearSpeedBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dialog_margin"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/linearSpeedText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/dialog_margin"
+                android:layout_marginTop="@dimen/dialog_margin"
+                android:layout_weight="0"
+                android:text="@string/percentage"
+                android:textAppearance="@style/DialogTheme" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/rotationSpeedLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/dialog_margin"
+            android:layout_marginStart="@dimen/dialog_margin"
+            android:layout_marginTop="@dimen/dialog_margin"
+            android:text="@string/rotation_speed"
+            android:textAppearance="@style/DialogTheme" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <SeekBar
+                android:id="@+id/rotationSpeedBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dialog_margin"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/rotationSpeedText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/dialog_margin"
+                android:layout_marginTop="@dimen/dialog_margin"
+                android:layout_weight="0"
+                android:text="@string/percentage"
+                android:textAppearance="@style/DialogTheme" />
+
+        </LinearLayout>
+
+        <Switch
+            android:id="@+id/panoramaVideoSwitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/dialog_margin"
+            android:checked="true"
+            android:text="@string/panorama_video"
+            android:textAppearance="@style/DialogTheme"
+            android:textColor="@color/primary_high" />
+
+        <Switch
+            android:id="@+id/panoramaPhotosSwitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/dialog_margin"
+            android:checked="true"
+            android:text="@string/panorama_photos"
+            android:textAppearance="@style/DialogTheme"
+            android:textColor="@color/primary_high" />
+
+        <TextView
+            android:id="@+id/panoramaAngleLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/dialog_margin"
+            android:layout_marginStart="@dimen/dialog_margin"
+            android:layout_marginTop="@dimen/dialog_margin"
+            android:text="@string/panorama_angle"
+            android:textAppearance="@style/DialogTheme" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <SeekBar
+                android:id="@+id/panoramaAngleBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dialog_margin"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/panoramaAngleText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/dialog_margin"
+                android:layout_marginTop="@dimen/dialog_margin"
+                android:layout_weight="0"
+                android:text="@string/angle"
+                android:textAppearance="@style/DialogTheme" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

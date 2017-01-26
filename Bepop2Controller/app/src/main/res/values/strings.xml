@@ -1,31 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Bebop2 Controller</string>
-
-    <string name="take_off">Take Off</string>
-    <string name="land">Land</string>
-    <string name="emergency">Emergency</string>
-    <string name="connecting">Connecting...</string>
-    <string name="disconnecting">Disconnecting...</string>
-    <string name="downloading_medias">Downloading medias</string>
-    <string name="cancel">Cancel</string>
-    <string name="fetching_medias">Fetching medias</string>
-    <string name="picture_taken">Picture taken</string>
-    <string name="video_started">Video started</string>
-    <string name="video_stopped">Video stopped</string>
-    <string name="no_percentage" translatable="false">\ - %</string>
-    <string name="no_distance" translatable="false">\ - m</string>
-    <string name="no_speed" translatable="false">\ \ - m/s</string>
-
-    <string name="bebop2_drone">Bebop2 Drone</string>
-    <string name="skycontroller2">SkyController 2</string>
-    <string name="device_not_supported">Not supported device</string>
-    <string name="device_not_recognized">Device not recognized</string>
-
-    <string name="options">Options</string>
-    <string name="video_option">Enable autorecord</string>
-    <string name="pitch_option">Invert pitch direction</string>
-    <string name="help">Help</string>
-    <string name="help_text">To start using a drone, click on an element in the list. If the list is empty, verify that you\'re connected by wifi to a drone, or by usb to a controller. Please note that this application can only detect Bebop2 drones and SkyController2 controllers from Parrot.</string>
     <string name="about" translatable="false">Bebop2 Controller\nVersion %1$s</string>
     <string name="aboutNoVersion" translatable="false">Bebop2 Controller\nUnknown Version</string>
+    <string name="allow_permission">Please allow the permission :\u0020</string>
+    <string name="angle" translatable="false">%1$d°</string>
+    <string name="app_name" translatable="false">Bebop2 Controller</string>
+    <string name="auto_record">Auto Record Video</string>
+    <string name="bebop2_drone" translatable="false">Bebop2 Drone</string>
+    <string name="cancel">Cancel</string>
+    <string name="commands">Commands</string>
+    <string name="commands_inverted">Commands Inverted</string>
+    <string name="connecting">Connecting…</string>
+    <string name="device_not_recognized">Device not recognized</string>
+    <string name="device_not_supported">Not supported device</string>
+    <string name="disconnecting">Disconnecting…</string>
+    <string name="downloading_medias">Downloading medias</string>
+    <string name="emergency" translatable="false">STOP</string>
+    <string name="fetching_medias">Fetching medias</string>
+    <string name="help">Help</string>
+    <string name="help_camera">Take a photo</string>
+    <string name="help_download">Download the medias of the last flight of this session</string>
+    <string name="help_emergency">Stop the drone instantly, letting it fall like a stone</string>
+    <string name="help_flip">Make a flip in one of the four directions</string>
+    <string name="help_home">Take the drone back to the location of the take-off</string>
+    <string name="help_lock">Make a long press to unlock the emergency button</string>
+    <string name="help_panorama">Make a panorama</string>
+    <string name="help_settings">Set the parameters of the application</string>
+    <string name="help_text">To start using a drone, click on an element in the list. If the list is empty, verify that you\'re connected by wifi to a drone, or by usb to a controller, then close and restart the application. Please note that this application can only detect Bebop2 drones and SkyController2 controllers from Parrot.</string>
+    <string name="help_video">Start or stop the video</string>
+    <string name="hold_on">Hold to unlock</string>
+    <string name="joysticks_fixed">Fixed Joysticks</string>
+    <string name="joysticks_inverted">Joysticks Inverted</string>
+    <string name="land">Land</string>
+    <string name="linear_speed">Linear Speed</string>
+    <string name="missing_permission">At least one permission is missing</string>
+    <string name="no_distance" translatable="false">\ - m</string>
+    <string name="no_percentage" translatable="false">\ - %</string>
+    <string name="no_speed" translatable="false">\ \ - m/s</string>
+    <string name="options">Options</string>
+    <string name="panorama_angle">Panorama\'s angle</string>
+    <string name="panorama_photos">Panorama with photos</string>
+    <string name="panorama_video">Panorama with video</string>
+    <string name="percentage" translatable="false">%1$d</string>
+    <string name="picture_taken">Picture taken</string>
+    <string name="rotation_speed">Rotation Speed</string>
+    <string name="skycontroller2" translatable="false">SkyController 2</string>
+    <string name="take_off">Take Off</string>
+    <string name="validate">OK</string>
+    <string name="video_started">Video started</string>
+    <string name="video_stopped">Video stopped</string>
 </resources>

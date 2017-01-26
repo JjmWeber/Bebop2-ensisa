@@ -1,22 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="take_off">Décoller</string>
-    <string name="land">Atterrir</string>
-    <string name="emergency">Urgence</string>
-    <string name="connecting">Connexion...</string>
-    <string name="disconnecting">Déconnexion...</string>
-    <string name="downloading_medias">Téléchargement en cours</string>
+    <string name="allow_permission">Veuillez ajouter la permission suivante :\u0020</string>
+    <string name="auto_record">Lancement Automatique de la Vidéo</string>
     <string name="cancel">Annuler</string>
+    <string name="commands">Commandes</string>
+    <string name="commands_inverted">Commandes Inversées</string>
+    <string name="connecting">Connexion…</string>
+    <string name="device_not_recognized">Appareil non reconnu</string>
+    <string name="device_not_supported">Appareil non supporté</string>
+    <string name="disconnecting">Déconnexion…</string>
+    <string name="downloading_medias">Téléchargement en cours</string>
     <string name="fetching_medias">Récupération des médias</string>
+    <string name="help">Aide</string>
+    <string name="help_camera">Prendre une photo</string>
+    <string name="help_download">Télécharger les médias du dernier vol de la session</string>
+    <string name="help_emergency">Stoppe le drone instantanément, le laissant tomber comme une pierre</string>
+    <string name="help_flip">Faire un flip dans une des quatre directions</string>
+    <string name="help_home">Ramène le drone à sa position de décollage</string>
+    <string name="help_lock">Faites un long clic pour déverrouiller le bouton d\'urgence</string>
+    <string name="help_panorama">Faire un panorama</string>
+    <string name="help_settings">Changer les paramètres de l\'application</string>
+    <string name="help_text">Pour commencer à piloter un drone, cliquez sur un élément de la liste. Si elle est vide, vérifiez que vous êtes bien connecté par wifi à un drone ou par usb à un contrôleur, puis fermez et relancez l\'application. Notez que cette application ne peut détecter que les drones Bebop2 et les contrôleurs SkyController2 de Parrot.</string>
+    <string name="help_video">Démarrer ou arrêter une vidéo</string>
+    <string name="hold_on">Maintenez pour déverrouiller</string>
+    <string name="joysticks_fixed">Joysticks Fixes</string>
+    <string name="joysticks_inverted">Joysticks Inversés</string>
+    <string name="land">Atterrir</string>
+    <string name="linear_speed">Vitesse Linéaire</string>
+    <string name="missing_permission">Il manque au moins une permission</string>
+    <string name="options">Options</string>
+    <string name="panorama_angle">Angle du panorama</string>
+    <string name="panorama_photos">Panorama avec photos</string>
+    <string name="panorama_video">Panorama avec vidéo</string>
     <string name="picture_taken">Photo enregistrée</string>
+    <string name="rotation_speed">Vitesse de Rotation</string>
+    <string name="take_off">Décoller</string>
+    <string name="validate">OK</string>
     <string name="video_started">Video démarrée</string>
     <string name="video_stopped">Video arrêtée</string>
-
-    <string name="device_not_supported">Appareil non supporté</string>
-    <string name="device_not_recognized">Appareil non reconnu</string>
-
-    <string name="options">Options</string>
-    <string name="video_option">Autoriser l\'enregistrement auto</string>
-    <string name="pitch_option">Inverser le tangage</string>
-    <string name="help">Aide</string>
-    <string name="help_text">Pour commencer à piloter un drone, cliquez sur un élément de la liste. Si elle est vide, vérifiez que vous êtes bien connecté par wifi à un drone ou par usb à un contrôleur. Notez que cette application ne peut détecter que les drones Bebop2 et les contrôleurs SkyController2 de Parrot.</string>
 </resources>

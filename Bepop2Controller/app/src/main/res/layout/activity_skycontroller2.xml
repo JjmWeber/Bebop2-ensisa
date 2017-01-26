@@ -1,41 +1,54 @@
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="fr.ensisa.bepop2controller.activity.Bebop2Activity"
-
     android:id="@+id/skycontroller2ActivityLayout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
 
-    <fr.ensisa.bepop2controller.view.Bebop2VideoView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="fr.ensisa.bebop2controller.activity.Bebop2Activity">
+
+    <fr.ensisa.bebop2controller.view.Bebop2VideoView
         android:id="@+id/videoView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
     <RelativeLayout
         android:id="@+id/loadingLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center" >
+        android:layout_below="@+id/barLayout"
+        android:layout_toStartOf="@+id/panoramaButton"
+        android:layout_toEndOf="@+id/downloadButton"
+        android:gravity="center">
 
         <ProgressBar
             android:id="@+id/loadingAnimation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
             android:indeterminate="true"
             android:indeterminateTint="@color/primary_high" />
+
+        <ImageView
+            android:id="@+id/horizonImageView"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            app:srcCompat="@drawable/horizon"
+            tools:ignore="ContentDescription"
+            android:layout_width="match_parent" />
 
     </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/barLayout"
-        android:orientation="horizontal"
-        android:foreground="@color/bar_background"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:background="@color/bar_background"
+        android:orientation="horizontal">
 
         <ImageView
             android:id="@+id/droneIconView"
@@ -55,9 +68,9 @@
             android:id="@+id/droneBatteryTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
             android:text="@string/no_percentage"
-            android:textColor="@color/primary_high"
-            android:layout_marginEnd="20dp" />
+            android:textColor="@color/primary_high" />
 
         <ImageView
             android:id="@+id/controllerIconView"
@@ -77,9 +90,9 @@
             android:id="@+id/controllerBatteryTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
             android:text="@string/no_percentage"
-            android:textColor="@color/primary_high"
-            android:layout_marginEnd="20dp" />
+            android:textColor="@color/primary_high" />
 
         <ImageView
             android:id="@+id/altitudeIconView"
@@ -92,9 +105,9 @@
             android:id="@+id/altitudeTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
             android:text="@string/no_distance"
-            android:textColor="@color/primary_high"
-            android:layout_marginEnd="20dp" />
+            android:textColor="@color/primary_high" />
 
         <ImageView
             android:id="@+id/speedIconView"
@@ -107,9 +120,9 @@
             android:id="@+id/speedTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
             android:text="@string/no_speed"
-            android:textColor="@color/primary_high"
-            android:layout_marginEnd="20dp" />
+            android:textColor="@color/primary_high" />
 
     </LinearLayout>
 
@@ -117,118 +130,118 @@
         android:id="@+id/emergencyButton"
         android:layout_width="100dp"
         android:layout_height="40dp"
-        android:layout_margin="10dp"
-        android:layout_above="@+id/barLayout"
+        android:layout_alignTop="@+id/panoramaButton"
         android:layout_centerHorizontal="true"
-        android:background="@drawable/style_emergency_button"
-        android:textStyle="normal|bold"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/style_emergency"
+        android:text="@string/emergency"
         android:textColor="@color/emergency"
-        android:text="@string/emergency" />
+        android:textSize="14sp"
+        android:textStyle="normal|bold" />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/gpsButton"
+        android:id="@+id/downloadButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/barLayout"
-        android:layout_alignParentStart="true"
+        android:layout_below="@+id/barLayout"
         android:layout_margin="10dp"
+        android:layout_toStartOf="@+id/flipButton"
         android:clickable="true"
-        app:fabSize="mini"
         app:backgroundTint="@color/icon_background"
-        app:srcCompat="@drawable/ic_gps" />
+        app:fabSize="mini"
+        app:srcCompat="@drawable/ic_download" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/flipButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/barLayout"
-        android:layout_toEndOf="@+id/gpsButton"
+        android:layout_below="@+id/barLayout"
         android:layout_margin="10dp"
+        android:layout_toStartOf="@+id/emergencyButton"
         android:clickable="true"
-        app:fabSize="mini"
         app:backgroundTint="@color/icon_background"
+        app:fabSize="mini"
         app:srcCompat="@drawable/ic_flip" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/panoramaButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/barLayout"
-        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/barLayout"
         android:layout_margin="10dp"
+        android:layout_toEndOf="@+id/paramsButton"
         android:clickable="true"
-        app:fabSize="mini"
         app:backgroundTint="@color/icon_background"
+        app:fabSize="mini"
         app:srcCompat="@drawable/ic_panorama" />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/downloadButton"
+        android:id="@+id/paramsButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/barLayout"
-        android:layout_toStartOf="@+id/panoramaButton"
+        android:layout_below="@+id/barLayout"
         android:layout_margin="10dp"
+        android:layout_toEndOf="@+id/emergencyButton"
         android:clickable="true"
-        app:fabSize="mini"
         app:backgroundTint="@color/icon_background"
-        app:srcCompat="@drawable/ic_download" />
+        app:fabSize="mini"
+        app:srcCompat="@drawable/ic_settings" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/backFlipButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignStart="@+id/flipButton"
-        android:layout_above="@+id/flipButton"
+        android:layout_below="@+id/flipButton"
         android:clickable="true"
         android:visibility="invisible"
-        app:fabSize="mini"
         app:backgroundTint="@color/icon_background"
+        app:fabSize="mini"
         app:srcCompat="@drawable/ic_back_flip" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/rightFlipButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/backFlipButton"
         android:layout_toEndOf="@+id/backFlipButton"
-        android:layout_above="@+id/backFlipButton"
         android:clickable="true"
         android:visibility="invisible"
-        app:fabSize="mini"
         app:backgroundTint="@color/icon_background"
+        app:fabSize="mini"
         app:srcCompat="@drawable/ic_right_flip" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/leftFlipButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/backFlipButton"
         android:layout_toStartOf="@+id/backFlipButton"
-        android:layout_above="@+id/backFlipButton"
         android:clickable="true"
         android:visibility="invisible"
-        app:fabSize="mini"
         app:backgroundTint="@color/icon_background"
+        app:fabSize="mini"
         app:srcCompat="@drawable/ic_left_flip" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/frontFlipButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/rightFlipButton"
         android:layout_toEndOf="@+id/leftFlipButton"
-        android:layout_above="@+id/rightFlipButton"
         android:clickable="true"
         android:visibility="invisible"
-        app:fabSize="mini"
         app:backgroundTint="@color/icon_background"
+        app:fabSize="mini"
         app:srcCompat="@drawable/ic_front_flip" />
 
-    <ImageView
-        android:id="@+id/horizonImageView"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
+    <Chronometer
+        android:id="@+id/chronometer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_below="@+id/emergencyButton"
         android:layout_centerHorizontal="true"
-        android:visibility="invisible"
-        app:srcCompat="@mipmap/pic_horizon"
-        tools:ignore="ContentDescription"
-        android:layout_width="300dp" />
+        android:visibility="invisible" />
 
 </RelativeLayout>

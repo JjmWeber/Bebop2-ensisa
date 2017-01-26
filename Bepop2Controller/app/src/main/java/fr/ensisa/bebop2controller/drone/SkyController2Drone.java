@@ -1,12 +1,15 @@
-package fr.ensisa.bepop2controller.drone;
+package fr.ensisa.bebop2controller.drone;
 
 import android.content.Context;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_ANIMATIONS_FLIP_DIRECTION_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM;
 import com.parrot.arsdk.arcontroller.ARCONTROLLER_DEVICE_STATE_ENUM;
 import com.parrot.arsdk.arcontroller.ARCONTROLLER_DICTIONARY_KEY_ENUM;
@@ -41,55 +44,52 @@ public class SkyController2Drone {
     private static final int DEVICE_PORT = 21;
 
     public interface Listener {
-        void onSkyController2ConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state);
-
-        void onDroneConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state);
-
-        void onSkyController2BatteryChargeChanged(int battery);
-
-        void onDroneBatteryChargeChanged(int battery);
-
         void onAltitudeChanged(double altitude);
 
-        void onSpeedChanged(float speed);
+        void onCodecConfigured(ARControllerCodec codec);
 
-        void horizonChanged(float roll);
+        void onControllerBatteryChargeChanged(int charge);
 
-        void onPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state);
+        void onControllerConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state);
 
-        void onPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error);
-
-        void onVideoStateChanged(ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_ENUM state);
-
-        void configureDecoder(ARControllerCodec codec);
-
-        void onFrameReceived(ARFrame frame);
-
-        void onMatchingMediasFound(int nbMedias);
+        void onDownloadComplete(String mediaName);
 
         void onDownloadProgressed(String mediaName, int progress);
 
-        void onDownloadComplete(String mediaName);
+        void onDroneBatteryChargeChanged(int charge);
+
+        void onDroneConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state);
+
+        void onFrameReceived(ARFrame frame);
+
+        void onHorizonChanged(float roll);
+
+        void onMatchingMediasFound(int nbMedias);
+
+        void onPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error);
+
+        void onPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state);
+
+        void onSpeedChanged(float speed);
+
+        void onVideoStateChanged(ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_ENUM state);
     }
 
     private final List<Listener> listeners;
     private final Handler handler;
-
-    private ARDeviceController deviceController;
-    private SDCardModule sdCardModule;
-    private ARCONTROLLER_DEVICE_STATE_ENUM skyController2State;
-    private ARCONTROLLER_DEVICE_STATE_ENUM droneState;
-    private ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM flyingState;
-
     private String currentRunId;
     private Context context;
+    private SDCardModule sdCardModule;
+    private ARDeviceController deviceController;
+    private ARCONTROLLER_DEVICE_STATE_ENUM droneState;
+    private ARCONTROLLER_DEVICE_STATE_ENUM controllerState;
 
     public SkyController2Drone(Context context, @NonNull ARDiscoveryDeviceService deviceService) {
         listeners = new ArrayList<>();
         handler = new Handler(context.getMainLooper());
         this.context = context;
 
-        skyController2State = ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_STOPPED;
+        controllerState = ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_STOPPED;
         droneState = ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_STOPPED;
         ARDISCOVERY_PRODUCT_ENUM productType = ARDiscoveryService.getProductFromProductID(deviceService.getProductID());
 
@@ -127,13 +127,14 @@ public class SkyController2Drone {
         listeners.add(listener);
     }
 
+    @SuppressWarnings("unused")
     public void removeListener(Listener listener) {
         listeners.remove(listener);
     }
 
     public boolean connect() {
         boolean success = false;
-        if((deviceController != null) && (ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_STOPPED.equals(skyController2State))) {
+        if((deviceController != null) && (ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_STOPPED.equals(controllerState))) {
             ARCONTROLLER_ERROR_ENUM error = deviceController.start();
             if(error == ARCONTROLLER_ERROR_ENUM.ARCONTROLLER_OK)
                 success = true;
@@ -143,7 +144,7 @@ public class SkyController2Drone {
 
     public boolean disconnect() {
         boolean success = false;
-        if((deviceController != null) && (ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING.equals(skyController2State))) {
+        if((deviceController != null) && (ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING.equals(controllerState))) {
             ARCONTROLLER_ERROR_ENUM error = deviceController.stop();
             if(error == ARCONTROLLER_ERROR_ENUM.ARCONTROLLER_OK)
                 success = true;
@@ -151,48 +152,27 @@ public class SkyController2Drone {
         return success;
     }
 
-    public ARCONTROLLER_DEVICE_STATE_ENUM getSkyController2ConnectionState() {
-        return skyController2State;
+    public ARCONTROLLER_DEVICE_STATE_ENUM getControllerConnectionState() {
+        return controllerState;
     }
 
     public ARCONTROLLER_DEVICE_STATE_ENUM getDroneConnectionState() {
         return droneState;
     }
 
-    public ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM getFlyingState() {
-        return flyingState;
-    }
-
-    public ARDeviceController getDeviceController() {
+    private ARDeviceController getDeviceController() {
         return deviceController;
     }
 
-    public void takeOff() {
-        if((deviceController != null) &&
-                (skyController2State.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)) &&
-                (deviceController.getExtensionState().equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)))
-            deviceController.getFeatureARDrone3().sendPilotingTakeOff();
-    }
-
-    public void land() {
-        if((deviceController != null) &&
-                (skyController2State.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)) &&
-                (deviceController.getExtensionState().equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)))
-            deviceController.getFeatureARDrone3().sendPilotingLanding();
+    public void cancelGetLastFlightMedias() {
+        sdCardModule.cancelGetFlightMedias();
     }
 
     public void emergency() {
         if((deviceController != null) &&
-                (skyController2State.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)) &&
+                (controllerState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)) &&
                 (deviceController.getExtensionState().equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)))
             deviceController.getFeatureARDrone3().sendPilotingEmergency();
-    }
-
-    public void takePicture() {
-        if((deviceController != null) &&
-                (skyController2State.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)) &&
-                (deviceController.getExtensionState().equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)))
-            deviceController.getFeatureARDrone3().sendMediaRecordPictureV2();
     }
 
     public void getLastFlightMedias() {
@@ -206,8 +186,55 @@ public class SkyController2Drone {
         }
     }
 
-    public void cancelGetLastFlightMedias() {
-        sdCardModule.cancelGetFlightMedias();
+    public void makeAFlip(ARCOMMANDS_ARDRONE3_ANIMATIONS_FLIP_DIRECTION_ENUM direction) {
+        if((deviceController != null) &&
+                (controllerState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)) &&
+                (deviceController.getExtensionState().equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)))
+            getDeviceController().getFeatureARDrone3().sendAnimationsFlip(direction);
+    }
+
+    public void setFlag(byte flag) {
+        if((deviceController != null) &&
+                (controllerState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)) &&
+                (deviceController.getExtensionState().equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)))
+            deviceController.getFeatureARDrone3().setPilotingPCMDFlag(flag);
+    }
+
+    public void setGPSHomeType(ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_ENUM type) {
+        if(deviceController != null)
+            deviceController.getFeatureARDrone3().sendGPSSettingsHomeType(type);
+    }
+
+    public void setLinearSpeed(float linearSpeed) {
+        if(deviceController != null)
+            deviceController.getFeatureARDrone3().sendSpeedSettingsMaxPitchRollRotationSpeed(linearSpeed);
+    }
+
+    public void setRotationSpeed(Float rotationSpeed) {
+        if(deviceController != null)
+            deviceController.getFeatureARDrone3().sendSpeedSettingsMaxRotationSpeed(rotationSpeed);
+    }
+
+    public void setYaw(byte yaw) {
+        if((deviceController != null) &&
+                (controllerState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)) &&
+                (deviceController.getExtensionState().equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)))
+            deviceController.getFeatureARDrone3().setPilotingPCMDYaw(yaw);
+    }
+
+    public void startVideo() {
+        if(deviceController != null)
+            deviceController.getFeatureARDrone3().sendMediaRecordVideoV2(ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM.ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_START);
+    }
+
+    public void stopVideo() {
+        if(deviceController != null)
+            deviceController.getFeatureARDrone3().sendMediaRecordVideoV2(ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM.ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_STOP);
+    }
+
+    public void takePicture() {
+        if((deviceController != null))
+            deviceController.getFeatureARDrone3().sendMediaRecordPictureV2();
     }
 
     private ARDiscoveryDevice createDiscoveryDevice(ARDISCOVERY_PRODUCT_ENUM productType) {
@@ -238,96 +265,81 @@ public class SkyController2Drone {
         return deviceController;
     }
 
-    private void notifySkyController2ConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state) {
-        List<Listener> listeners = new ArrayList<>(this.listeners);
-        for (Listener listener : listeners)
-            listener.onSkyController2ConnectionChanged(state);
-    }
-
-    private void notifyDroneConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state) {
-        List<Listener> listeners = new ArrayList<>(this.listeners);
-        for (Listener listener : listeners)
-            listener.onDroneConnectionChanged(state);
-    }
-
-    private void notifySkyController2BatteryChanged(int battery) {
-        List<Listener> listeners = new ArrayList<>(this.listeners);
-        for (Listener listener : listeners)
-            listener.onSkyController2BatteryChargeChanged(battery);
-    }
-
-    private void notifyDroneBatteryChanged(int battery) {
-        List<Listener> listeners = new ArrayList<>(this.listeners);
-        for (Listener listener : listeners)
-            listener.onDroneBatteryChargeChanged(battery);
-    }
-
     private void notifyAltitudeChanged(double altitude) {
-        List<Listener> listeners = new ArrayList<>(this.listeners);
         for (Listener listener : listeners)
             listener.onAltitudeChanged(altitude);
     }
 
-    private void notifySpeedChanged(float speed) {
-        List<Listener> listenersCpy = new ArrayList<>(this.listeners);
-        for (Listener listener : listenersCpy) {
-            listener.onSpeedChanged(speed);
-        }
-    }
-
-    private void notifyHorizonChanged(float roll) {
-        List<Listener> listenersCpy = new ArrayList<>(this.listeners);
-        for (Listener listener : listenersCpy) {
-            listener.horizonChanged(roll);
-        }
-    }
-
-    private void notifyPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state) {
-        List<Listener> listeners = new ArrayList<>(this.listeners);
+    private void notifyCodecConfigured(ARControllerCodec codec) {
         for (Listener listener : listeners)
-            listener.onPilotingStateChanged(state);
+            listener.onCodecConfigured(codec);
     }
 
-    private void notifyPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error) {
-        List<Listener> listeners = new ArrayList<>(this.listeners);
+    private void notifyControllerBatteryChargeChanged(int charge) {
         for (Listener listener : listeners)
-            listener.onPictureTaken(error);
+            listener.onControllerBatteryChargeChanged(charge);
     }
 
-    private void notifyVideoStateChanged(ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_ENUM state) {
-        List<Listener> listeners = new ArrayList<>(this.listeners);
+    private void notifyControllerConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state) {
         for (Listener listener : listeners)
-            listener.onVideoStateChanged(state);
+            listener.onControllerConnectionChanged(state);
     }
 
-    private void notifyConfigureDecoder(ARControllerCodec codec) {
-        List<Listener> listeners = new ArrayList<>(this.listeners);
+    private void notifyDroneBatteryChargeChanged(int charge) {
         for (Listener listener : listeners)
-            listener.configureDecoder(codec);
+            listener.onDroneBatteryChargeChanged(charge);
     }
 
-    private void notifyFrameReceived(ARFrame frame) {
-        List<Listener> listeners = new ArrayList<>(this.listeners);
+    private void notifyDroneConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state) {
         for (Listener listener : listeners)
-            listener.onFrameReceived(frame);
+            listener.onDroneConnectionChanged(state);
     }
 
-    private void notifyMatchingMediasFound(int nbMedias) {
-        List<Listener> listeners = new ArrayList<>(this.listeners);
+    private void notifyDownloadCompleted(String mediaName) {
         for (Listener listener : listeners)
-            listener.onMatchingMediasFound(nbMedias);
+            listener.onDownloadComplete(mediaName);
     }
 
     private void notifyDownloadProgressed(String mediaName, int progress) {
-        List<Listener> listeners = new ArrayList<>(this.listeners);
         for (Listener listener : listeners)
             listener.onDownloadProgressed(mediaName, progress);
     }
 
-    private void notifyDownloadComplete(String mediaName) {
-        List<Listener> listeners = new ArrayList<>(this.listeners);
+    private void notifyFrameReceived(ARFrame frame) {
         for (Listener listener : listeners)
-            listener.onDownloadComplete(mediaName);
+            listener.onFrameReceived(frame);
+    }
+
+    private void notifyHorizonChanged(float roll) {
+        for (Listener listener : listeners) {
+            listener.onHorizonChanged(roll);
+        }
+    }
+
+    private void notifyPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error) {
+        for (Listener listener : listeners)
+            listener.onPictureTaken(error);
+    }
+
+    private void notifyPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state) {
+        for (Listener listener : listeners)
+            listener.onPilotingStateChanged(state);
+    }
+
+    private void notifyMatchingMediasFound(int nbMedias) {
+        for (Listener listener : listeners)
+            listener.onMatchingMediasFound(nbMedias);
+    }
+
+    private void notifySpeedChanged(float speed) {
+        for (Listener listener : listeners) {
+            listener.onSpeedChanged(speed);
+        }
+    }
+
+    private void notifyVideoStateChanged(ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_ENUM state) {
+        for (Listener listener : listeners)
+            listener.onVideoStateChanged(state);
     }
 
     @SuppressWarnings("FieldCanBeLocal")
@@ -357,7 +369,7 @@ public class SkyController2Drone {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    notifyDownloadComplete(mediaName);
+                    notifyDownloadCompleted(mediaName);
                 }
             });
         }
@@ -366,11 +378,11 @@ public class SkyController2Drone {
     private final ARDeviceControllerListener deviceControllerListener = new ARDeviceControllerListener() {
         @Override
         public void onStateChanged(ARDeviceController deviceController, ARCONTROLLER_DEVICE_STATE_ENUM newState, ARCONTROLLER_ERROR_ENUM error) {
-            skyController2State = newState;
+            controllerState = newState;
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    notifySkyController2ConnectionChanged(skyController2State);
+                    notifyControllerConnectionChanged(controllerState);
                 }
             });
         }
@@ -393,35 +405,8 @@ public class SkyController2Drone {
 
         @Override
         public void onCommandReceived(ARDeviceController deviceController, ARCONTROLLER_DICTIONARY_KEY_ENUM commandKey, ARControllerDictionary elementDictionary) {
-            // if event received is the battery update
-            if((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_COMMON_COMMONSTATE_BATTERYSTATECHANGED) && (elementDictionary != null)) {
-                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
-                if(args != null) {
-                    final int battery = (Integer) args.get(ARFeatureCommon.ARCONTROLLER_DICTIONARY_KEY_COMMON_COMMONSTATE_BATTERYSTATECHANGED_PERCENT);
-
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            notifyDroneBatteryChanged(battery);
-                        }
-                    });
-                }
-            }
-            // if event received is the skyController2 battery update
-            else if((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_SKYCONTROLLER_SKYCONTROLLERSTATE_BATTERYCHANGED) && (elementDictionary != null)) {
-                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
-                if(args != null) {
-                    final int battery = (Integer) args.get(ARFeatureSkyController.ARCONTROLLER_DICTIONARY_KEY_SKYCONTROLLER_SKYCONTROLLERSTATE_BATTERYCHANGED_PERCENT);
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            notifySkyController2BatteryChanged(battery);
-                        }
-                    });
-                }
-            }
-            // if event received is the altitude update
-            else if((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_ALTITUDECHANGED) && (elementDictionary != null)){
+            // onAltitudeChanged
+            if((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_ALTITUDECHANGED) && (elementDictionary != null)){
                 ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
                 if(args != null) {
                     final double altitude = (double)args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_ALTITUDECHANGED_ALTITUDE);
@@ -433,13 +418,38 @@ public class SkyController2Drone {
                     });
                 }
             }
-            // if event received is the horizon update
+            // onControllerBatteryChargeChanged
+            else if((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_SKYCONTROLLER_SKYCONTROLLERSTATE_BATTERYCHANGED) && (elementDictionary != null)) {
+                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
+                if(args != null) {
+                    final int battery = (Integer) args.get(ARFeatureSkyController.ARCONTROLLER_DICTIONARY_KEY_SKYCONTROLLER_SKYCONTROLLERSTATE_BATTERYCHANGED_PERCENT);
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyControllerBatteryChargeChanged(battery);
+                        }
+                    });
+                }
+            }
+            // onDroneBatteryChargeChanged
+            else if((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_COMMON_COMMONSTATE_BATTERYSTATECHANGED) && (elementDictionary != null)) {
+                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
+                if(args != null) {
+                    final int battery = (Integer) args.get(ARFeatureCommon.ARCONTROLLER_DICTIONARY_KEY_COMMON_COMMONSTATE_BATTERYSTATECHANGED_PERCENT);
+
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyDroneBatteryChargeChanged(battery);
+                        }
+                    });
+                }
+            }
+            // onHorizonChanged
             else if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_ATTITUDECHANGED) && (elementDictionary != null)){
                 ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
                 if (args != null) {
                     final float roll = (float)((Double)args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_ATTITUDECHANGED_ROLL)).doubleValue();
-                    //float pitch = (float)((Double)args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_ATTITUDECHANGED_PITCH)).doubleValue();
-                    //float yaw = (float)((Double)args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_ATTITUDECHANGED_YAW)).doubleValue();
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -448,37 +458,7 @@ public class SkyController2Drone {
                     });
                 }
             }
-            // if event received is the speed update
-            else if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_SPEEDCHANGED) && (elementDictionary != null)){
-                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
-                if (args != null) {
-                    final  float speedX = (float)((Double)args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_SPEEDCHANGED_SPEEDX)).doubleValue();
-                    //final float speedY = (float)((Double)args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_SPEEDCHANGED_SPEEDY)).doubleValue();
-                    //final float speedZ = (float)((Double)args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_SPEEDCHANGED_SPEEDZ)).doubleValue();
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            notifySpeedChanged(speedX);
-                        }
-                    });
-                }
-            }
-            // if event received is the flying state update
-            else if((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED) && (elementDictionary != null)) {
-                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
-                if(args != null) {
-                    final ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state = ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.getFromValue((Integer) args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE));
-
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            flyingState = state;
-                            notifyPilotingStateChanged(state);
-                        }
-                    });
-                }
-            }
-            // if event received is the picture notification
+            // onPictureTaken
             else if((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED) && (elementDictionary != null)){
                 ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
                 if(args != null) {
@@ -491,20 +471,20 @@ public class SkyController2Drone {
                     });
                 }
             }
-            // if event received is the video notification
-            if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2) && (elementDictionary != null)){
+            // onPilotingStateChanged
+            else if((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED) && (elementDictionary != null)) {
                 ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
-                if (args != null) {
-                    final ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_ENUM state = ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_ENUM.getFromValue((Integer)args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE));
+                if(args != null) {
+                    final ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state = ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM.getFromValue((Integer) args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE));
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            notifyVideoStateChanged(state);
+                            notifyPilotingStateChanged(state);
                         }
                     });
                 }
             }
-            // if event received is the run id
+            // onRunIDChanged
             else if((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_COMMON_RUNSTATE_RUNIDCHANGED) && (elementDictionary != null)){
                 ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
                 if(args != null) {
@@ -517,13 +497,39 @@ public class SkyController2Drone {
                     });
                 }
             }
+            // onSpeedChanged
+            else if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_SPEEDCHANGED) && (elementDictionary != null)){
+                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
+                if (args != null) {
+                    final  float speedX = (float)((Double)args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_SPEEDCHANGED_SPEEDX)).doubleValue();
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifySpeedChanged(speedX);
+                        }
+                    });
+                }
+            }
+            // onVideoStateChanged
+            else if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2) && (elementDictionary != null)){
+                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
+                if (args != null) {
+                    final ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_ENUM state = ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_ENUM.getFromValue((Integer)args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE));
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyVideoStateChanged(state);
+                        }
+                    });
+                }
+            }
         }
     };
 
     private final ARDeviceControllerStreamListener mStreamListener = new ARDeviceControllerStreamListener() {
         @Override
         public ARCONTROLLER_ERROR_ENUM configureDecoder(ARDeviceController deviceController, final ARControllerCodec codec) {
-            notifyConfigureDecoder(codec);
+            notifyCodecConfigured(codec);
             return ARCONTROLLER_ERROR_ENUM.ARCONTROLLER_OK;
         }
 
@@ -534,7 +540,9 @@ public class SkyController2Drone {
         }
 
         @Override
-        public void onFrameTimeout(ARDeviceController deviceController) {}
+        public void onFrameTimeout(ARDeviceController deviceController) {
+
+        }
     };
 
 }

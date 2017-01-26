@@ -1,18 +1,317 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical" android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:id="@+id/helpDialogLayout">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/helpDialogScrollView"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
 
-    <TextView
-        android:text="@string/help_text"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:id="@+id/helpDialogLayout"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/textView"
-        android:textColor="@color/white"
-        android:textAlignment="center"
-        android:lineSpacingExtra="8sp"
-        android:layout_margin="8dp"
-        android:textSize="18sp" />
-</LinearLayout>
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/helpTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/dialog_margin"
+            android:text="@string/help"
+            android:textAlignment="center"
+            android:textAppearance="@style/DialogTheme"
+            android:textSize="@dimen/dialog_title" />
+
+        <TextView
+            android:id="@+id/helpText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/dialog_margin"
+            android:text="@string/help_text"
+            android:textAlignment="center"
+            android:textAllCaps="false"
+            android:textAppearance="@style/DialogTheme" />
+
+        <TextView
+            android:id="@+id/commandsTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/dialog_margin"
+            android:text="@string/commands"
+            android:textAlignment="center"
+            android:textAppearance="@style/DialogTheme"
+            android:textSize="@dimen/dialog_title" />
+
+        <LinearLayout
+            android:id="@+id/cameraHelpLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/cameraHelpImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dialog_margin"
+                android:layout_weight="0"
+                android:background="@color/background"
+                app:srcCompat="@drawable/ic_camera"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/cameraHelpText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dialog_margin"
+                android:layout_weight="1"
+                android:padding="@dimen/dialog_margin"
+                android:text="@string/help_camera"
+                android:textAlignment="center"
+                android:textAllCaps="false"
+                android:textAppearance="@style/DialogTheme" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/videoHelpLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/videoHelpText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dialog_margin"
+                android:layout_weight="1"
+                android:padding="@dimen/dialog_margin"
+                android:text="@string/help_video"
+                android:textAlignment="center"
+                android:textAllCaps="false"
+                android:textAppearance="@style/DialogTheme" />
+
+            <ImageButton
+                android:id="@+id/videoHelpImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dialog_margin"
+                android:layout_weight="0"
+                android:background="@color/background"
+                app:srcCompat="@drawable/ic_video"
+                tools:ignore="ContentDescription" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/panoramaHelpLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/panoramaHelpImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dialog_margin"
+                android:layout_weight="0"
+                android:background="@color/background"
+                app:srcCompat="@drawable/ic_panorama"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/panoramaHelpText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dialog_margin"
+                android:layout_weight="1"
+                android:padding="@dimen/dialog_margin"
+                android:text="@string/help_panorama"
+                android:textAlignment="center"
+                android:textAllCaps="false"
+                android:textAppearance="@style/DialogTheme" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/settingsHelpLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/settingsHelpText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dialog_margin"
+                android:layout_weight="1"
+                android:padding="@dimen/dialog_margin"
+                android:text="@string/help_settings"
+                android:textAlignment="center"
+                android:textAllCaps="false"
+                android:textAppearance="@style/DialogTheme" />
+
+            <ImageButton
+                android:id="@+id/settingsHelpImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dialog_margin"
+                android:layout_weight="0"
+                android:background="@color/background"
+                app:srcCompat="@drawable/ic_settings"
+                tools:ignore="ContentDescription" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/flipHelpLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/flipHelpImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dialog_margin"
+                android:layout_weight="0"
+                android:background="@color/background"
+                app:srcCompat="@drawable/ic_flip"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/flipHelpText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dialog_margin"
+                android:layout_weight="1"
+                android:padding="@dimen/dialog_margin"
+                android:text="@string/help_flip"
+                android:textAlignment="center"
+                android:textAllCaps="false"
+                android:textAppearance="@style/DialogTheme" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/downloadHelpLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/downloadHelpText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dialog_margin"
+                android:layout_weight="1"
+                android:padding="@dimen/dialog_margin"
+                android:text="@string/help_download"
+                android:textAlignment="center"
+                android:textAllCaps="false"
+                android:textAppearance="@style/DialogTheme" />
+
+            <ImageButton
+                android:id="@+id/downloadHelpImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dialog_margin"
+                android:layout_weight="0"
+                android:background="@color/background"
+                app:srcCompat="@drawable/ic_download"
+                tools:ignore="ContentDescription" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/homeHelpLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/homeHelpImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dialog_margin"
+                android:layout_weight="0"
+                android:background="@color/background"
+                app:srcCompat="@drawable/ic_home"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/homeHelpText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dialog_margin"
+                android:layout_weight="1"
+                android:padding="@dimen/dialog_margin"
+                android:text="@string/help_home"
+                android:textAlignment="center"
+                android:textAllCaps="false"
+                android:textAppearance="@style/DialogTheme" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/lockHelpLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/lockHelpText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dialog_margin"
+                android:layout_weight="1"
+                android:padding="@dimen/dialog_margin"
+                android:text="@string/help_lock"
+                android:textAlignment="center"
+                android:textAllCaps="false"
+                android:textAppearance="@style/DialogTheme" />
+
+            <ImageButton
+                android:id="@+id/lockHelpImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dialog_margin"
+                android:layout_weight="0"
+                android:background="@color/background"
+                app:srcCompat="@drawable/ic_lock"
+                tools:ignore="ContentDescription" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/emergencyHelpLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/emergencyHelpImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dialog_margin"
+                android:layout_weight="0"
+                android:background="@color/background"
+                app:srcCompat="@drawable/ic_emergency"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/emergencyHelpText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dialog_margin"
+                android:layout_weight="1"
+                android:padding="@dimen/dialog_margin"
+                android:text="@string/help_emergency"
+                android:textAlignment="center"
+                android:textAllCaps="false"
+                android:textAppearance="@style/DialogTheme" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

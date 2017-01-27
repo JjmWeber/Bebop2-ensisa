@@ -201,17 +201,23 @@ public class SkyController2Drone {
     }
 
     public void setGPSHomeType(ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_ENUM type) {
-        if(deviceController != null)
+        if((deviceController != null) &&
+                (controllerState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)) &&
+                (deviceController.getExtensionState().equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)))
             deviceController.getFeatureARDrone3().sendGPSSettingsHomeType(type);
     }
 
     public void setLinearSpeed(float linearSpeed) {
-        if(deviceController != null)
+        if((deviceController != null) &&
+                (controllerState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)) &&
+                (deviceController.getExtensionState().equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)))
             deviceController.getFeatureARDrone3().sendSpeedSettingsMaxPitchRollRotationSpeed(linearSpeed);
     }
 
     public void setRotationSpeed(Float rotationSpeed) {
-        if(deviceController != null)
+        if((deviceController != null) &&
+                (controllerState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)) &&
+                (deviceController.getExtensionState().equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)))
             deviceController.getFeatureARDrone3().sendSpeedSettingsMaxRotationSpeed(rotationSpeed);
     }
 
@@ -233,7 +239,9 @@ public class SkyController2Drone {
     }
 
     public void takePicture() {
-        if((deviceController != null))
+        if((deviceController != null) &&
+                (controllerState.equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)) &&
+                (deviceController.getExtensionState().equals(ARCONTROLLER_DEVICE_STATE_ENUM.ARCONTROLLER_DEVICE_STATE_RUNNING)))
             deviceController.getFeatureARDrone3().sendMediaRecordPictureV2();
     }
 

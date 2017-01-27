@@ -123,6 +123,7 @@ public class Bebop2Activity extends AppCompatActivity {
                 getResources().getDimensionPixelSize(R.dimen.right_medium_margin),
                 getResources().getDimensionPixelSize(R.dimen.left_high_margin),
                 getResources().getDimensionPixelSize(R.dimen.right_high_margin)};
+
         initIHM();
 
         ARDiscoveryDeviceService service = getIntent().getParcelableExtra(MainActivity.EXTRA_DEVICE_SERVICE);

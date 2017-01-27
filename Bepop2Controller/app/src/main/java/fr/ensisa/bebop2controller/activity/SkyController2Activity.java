@@ -90,7 +90,7 @@ public class SkyController2Activity extends AppCompatActivity {
         } else {
             autoRecord = (boolean) savedInstanceState.getSerializable("autoRecord");
             linearSpeed = (float) savedInstanceState.getSerializable("linearSpeed");
-            panoramaAngle = (double) savedInstanceState.getSerializable("rotationSpeed");
+            panoramaAngle = (double) savedInstanceState.getSerializable("panoramaAngle");
             panoramaPhotos = (boolean) savedInstanceState.getSerializable("panoramaPhotos");
             panoramaVideo = (boolean) savedInstanceState.getSerializable("panoramaVideo");
             rotationSpeed = (float) savedInstanceState.getSerializable("rotationSpeed");

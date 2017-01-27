@@ -139,159 +139,160 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
-                if(optionsHasBeenSet && intent != null && layoutResourceID != 0) {
-                    intent.putExtra(EXTRA_DEVICE_SERVICE, service);
-                    intent.putExtra("autoRecord", autoRecord);
-                    intent.putExtra("commandsInverted", commandsInverted);
-                    intent.putExtra("joysticksInverted", joysticksInverted);
-                    intent.putExtra("joysticksFixed", joysticksFixed);
-                    intent.putExtra("linearSpeed", linearSpeed);
-                    intent.putExtra("panoramaAngle", panoramaAngle);
-                    intent.putExtra("panoramaPhotos", panoramaPhotos);
-                    intent.putExtra("panoramaVideo", panoramaVideo);
-                    intent.putExtra("rotationSpeed", rotationSpeed);
+                if(intent != null && layoutResourceID != 0)
+                    if(optionsHasBeenSet) {
+                        intent.putExtra(EXTRA_DEVICE_SERVICE, service);
+                        intent.putExtra("autoRecord", autoRecord);
+                        intent.putExtra("commandsInverted", commandsInverted);
+                        intent.putExtra("joysticksInverted", joysticksInverted);
+                        intent.putExtra("joysticksFixed", joysticksFixed);
+                        intent.putExtra("linearSpeed", linearSpeed);
+                        intent.putExtra("panoramaAngle", panoramaAngle);
+                        intent.putExtra("panoramaPhotos", panoramaPhotos);
+                        intent.putExtra("panoramaVideo", panoramaVideo);
+                        intent.putExtra("rotationSpeed", rotationSpeed);
 
-                    startActivity(intent);
-                } else {
-                    Builder dialogBuilder = new Builder(new ContextThemeWrapper(MainActivity.this, R.style.AppTheme));
-                    LayoutInflater inflater = MainActivity.this.getLayoutInflater();
-                    final View dialogView = inflater.inflate(layoutResourceID, null);
-                    dialogBuilder.setView(dialogView);
+                        startActivity(intent);
+                    } else {
+                        Builder dialogBuilder = new Builder(new ContextThemeWrapper(MainActivity.this, R.style.AppTheme));
+                        LayoutInflater inflater = MainActivity.this.getLayoutInflater();
+                        final View dialogView = inflater.inflate(layoutResourceID, null);
+                        dialogBuilder.setView(dialogView);
 
-                    autoRecordSwitch = (Switch) dialogView.findViewById(R.id.autoRecordSwitch);
-                    panoramaPhotosSwitch = (Switch) dialogView.findViewById(R.id.panoramaPhotosSwitch);
-                    panoramaVideoSwitch = (Switch) dialogView.findViewById(R.id.panoramaVideoSwitch);
+                        autoRecordSwitch = (Switch) dialogView.findViewById(R.id.autoRecordSwitch);
+                        panoramaPhotosSwitch = (Switch) dialogView.findViewById(R.id.panoramaPhotosSwitch);
+                        panoramaVideoSwitch = (Switch) dialogView.findViewById(R.id.panoramaVideoSwitch);
 
-                    autoRecordSwitch.setChecked(autoRecord);
-                    panoramaPhotosSwitch.setChecked(panoramaPhotos);
-                    panoramaVideoSwitch.setChecked(panoramaVideo);
+                        autoRecordSwitch.setChecked(autoRecord);
+                        panoramaPhotosSwitch.setChecked(panoramaPhotos);
+                        panoramaVideoSwitch.setChecked(panoramaVideo);
 
-                    SeekBar linearSpeedBar = (SeekBar) dialogView.findViewById(R.id.linearSpeedBar);
-                    SeekBar rotationSpeedBar = (SeekBar) dialogView.findViewById(R.id.rotationSpeedBar);
-                    SeekBar panoramaAngleBar = (SeekBar) dialogView.findViewById(R.id.panoramaAngleBar);
+                        SeekBar linearSpeedBar = (SeekBar) dialogView.findViewById(R.id.linearSpeedBar);
+                        SeekBar rotationSpeedBar = (SeekBar) dialogView.findViewById(R.id.rotationSpeedBar);
+                        SeekBar panoramaAngleBar = (SeekBar) dialogView.findViewById(R.id.panoramaAngleBar);
 
-                    linearSpeedText = (TextView) dialogView.findViewById(R.id.linearSpeedText);
-                    rotationSpeedText = (TextView) dialogView.findViewById(R.id.rotationSpeedText);
-                    panoramaAngleText = (TextView) dialogView.findViewById(R.id.panoramaAngleText);
+                        linearSpeedText = (TextView) dialogView.findViewById(R.id.linearSpeedText);
+                        rotationSpeedText = (TextView) dialogView.findViewById(R.id.rotationSpeedText);
+                        panoramaAngleText = (TextView) dialogView.findViewById(R.id.panoramaAngleText);
 
-                    linearSpeedText.setText(getString(R.string.percentage, (int) linearSpeed));
-                    rotationSpeedText.setText(getString(R.string.percentage, (int) rotationSpeed));
-                    panoramaAngleText.setText(getString(R.string.angle, (int) panoramaAngle));
+                        linearSpeedText.setText(getString(R.string.percentage, (int) linearSpeed));
+                        rotationSpeedText.setText(getString(R.string.percentage, (int) rotationSpeed));
+                        panoramaAngleText.setText(getString(R.string.angle, (int) panoramaAngle));
 
-                    linearSpeedBar.setMax((MAX_LINEAR_SPEED - MIN_LINEAR_SPEED) / STEP_LINEAR_SPEED);
-                    linearSpeedBar.setProgress((int) linearSpeed - MIN_LINEAR_SPEED);
-                    linearSpeedBar.setOnSeekBarChangeListener(
-                            new SeekBar.OnSeekBarChangeListener() {
-                                @Override
-                                public void onStopTrackingTouch(SeekBar seekBar) {
+                        linearSpeedBar.setMax((MAX_LINEAR_SPEED - MIN_LINEAR_SPEED) / STEP_LINEAR_SPEED);
+                        linearSpeedBar.setProgress((int) linearSpeed - MIN_LINEAR_SPEED);
+                        linearSpeedBar.setOnSeekBarChangeListener(
+                                new SeekBar.OnSeekBarChangeListener() {
+                                    @Override
+                                    public void onStopTrackingTouch(SeekBar seekBar) {
 
+                                    }
+
+                                    @Override
+                                    public void onStartTrackingTouch(SeekBar seekBar) {
+
+                                    }
+
+                                    @Override
+                                    public void onProgressChanged(SeekBar seekBar, int progress,
+                                                                  boolean fromUser) {
+                                        linearSpeed = (MIN_LINEAR_SPEED + (progress * STEP_LINEAR_SPEED));
+                                        linearSpeedText.setText(getString(R.string.percentage, (int) linearSpeed));
+                                    }
                                 }
+                        );
 
-                                @Override
-                                public void onStartTrackingTouch(SeekBar seekBar) {
+                        rotationSpeedBar.setMax((MAX_ROTATION_SPEED - MIN_ROTATION_SPEED) / STEP_ROTATION_SPEED);
+                        rotationSpeedBar.setProgress((int) rotationSpeed - MIN_ROTATION_SPEED);
+                        rotationSpeedBar.setOnSeekBarChangeListener(
+                                new SeekBar.OnSeekBarChangeListener() {
+                                    @Override
+                                    public void onStopTrackingTouch(SeekBar seekBar) {
 
+                                    }
+
+                                    @Override
+                                    public void onStartTrackingTouch(SeekBar seekBar) {
+
+                                    }
+
+                                    @Override
+                                    public void onProgressChanged(SeekBar seekBar, int progress,
+                                                                  boolean fromUser) {
+                                        rotationSpeed = (MIN_ROTATION_SPEED + (progress * STEP_ROTATION_SPEED));
+                                        rotationSpeedText.setText(getString(R.string.percentage, (int) rotationSpeed));
+                                    }
                                 }
+                        );
 
-                                @Override
-                                public void onProgressChanged(SeekBar seekBar, int progress,
-                                                              boolean fromUser) {
-                                    linearSpeed = (MIN_LINEAR_SPEED + (progress * STEP_LINEAR_SPEED));
-                                    linearSpeedText.setText(getString(R.string.percentage, (int) linearSpeed));
+                        panoramaAngleBar.setMax((MAX_ANGLE - MIN_ANGLE) / STEP_ANGLE);
+                        panoramaAngleBar.setProgress((int) panoramaAngle - MIN_ANGLE);
+                        panoramaAngleBar.setOnSeekBarChangeListener(
+                                new SeekBar.OnSeekBarChangeListener() {
+                                    @Override
+                                    public void onStopTrackingTouch(SeekBar seekBar) {
+
+                                    }
+
+                                    @Override
+                                    public void onStartTrackingTouch(SeekBar seekBar) {
+
+                                    }
+
+                                    @Override
+                                    public void onProgressChanged(SeekBar seekBar, int progress,
+                                                                  boolean fromUser) {
+                                        panoramaAngle = (MIN_ANGLE + (progress * STEP_ANGLE));
+                                        panoramaAngleText.setText(getString(R.string.angle, (int) panoramaAngle));
+                                    }
                                 }
-                            }
-                    );
+                        );
 
-                    rotationSpeedBar.setMax((MAX_ROTATION_SPEED - MIN_ROTATION_SPEED) / STEP_ROTATION_SPEED);
-                    rotationSpeedBar.setProgress((int) rotationSpeed - MIN_ROTATION_SPEED);
-                    rotationSpeedBar.setOnSeekBarChangeListener(
-                            new SeekBar.OnSeekBarChangeListener() {
-                                @Override
-                                public void onStopTrackingTouch(SeekBar seekBar) {
+                        if(layoutResourceID == R.layout.drone_options) {
+                            commandsInvertedSwitch = (Switch) dialogView.findViewById(R.id.commandsInverted);
+                            joysticksFixedSwitch = (Switch) dialogView.findViewById(R.id.joysticksFixed);
+                            joysticksInvertedSwitch = (Switch) dialogView.findViewById(R.id.joysticksInverted);
 
-                                }
-
-                                @Override
-                                public void onStartTrackingTouch(SeekBar seekBar) {
-
-                                }
-
-                                @Override
-                                public void onProgressChanged(SeekBar seekBar, int progress,
-                                                              boolean fromUser) {
-                                    rotationSpeed = (MIN_ROTATION_SPEED + (progress * STEP_ROTATION_SPEED));
-                                    rotationSpeedText.setText(getString(R.string.percentage, (int) rotationSpeed));
-                                }
-                            }
-                    );
-
-                    panoramaAngleBar.setMax((MAX_ANGLE - MIN_ANGLE) / STEP_ANGLE);
-                    panoramaAngleBar.setProgress((int) panoramaAngle - MIN_ANGLE);
-                    panoramaAngleBar.setOnSeekBarChangeListener(
-                            new SeekBar.OnSeekBarChangeListener() {
-                                @Override
-                                public void onStopTrackingTouch(SeekBar seekBar) {
-
-                                }
-
-                                @Override
-                                public void onStartTrackingTouch(SeekBar seekBar) {
-
-                                }
-
-                                @Override
-                                public void onProgressChanged(SeekBar seekBar, int progress,
-                                                              boolean fromUser) {
-                                    panoramaAngle = (MIN_ANGLE + (progress * STEP_ANGLE));
-                                    panoramaAngleText.setText(getString(R.string.angle, (int) panoramaAngle));
-                                }
-                            }
-                    );
-
-                    if(layoutResourceID == R.layout.drone_options) {
-                        commandsInvertedSwitch = (Switch) dialogView.findViewById(R.id.commandsInverted);
-                        joysticksFixedSwitch = (Switch) dialogView.findViewById(R.id.joysticksFixed);
-                        joysticksInvertedSwitch = (Switch) dialogView.findViewById(R.id.joysticksInverted);
-
-                        commandsInvertedSwitch.setChecked(commandsInverted);
-                        joysticksFixedSwitch.setChecked(joysticksFixed);
-                        joysticksInvertedSwitch.setChecked(joysticksInverted);
-                    }
-
-                    dialogBuilder.setPositiveButton(R.string.validate, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            optionsHasBeenSet = true;
-
-                            autoRecord = autoRecordSwitch.isChecked();
-                            panoramaPhotos = panoramaPhotosSwitch.isChecked();
-                            panoramaVideo = panoramaVideoSwitch.isChecked();
-
-                            if(layoutResourceID == R.layout.drone_options) {
-                                commandsInverted = commandsInvertedSwitch.isChecked();
-                                joysticksFixed = joysticksFixedSwitch.isChecked();
-                                joysticksInverted = joysticksInvertedSwitch.isChecked();
-                            }
-
-                            intent.putExtra(EXTRA_DEVICE_SERVICE, service);
-                            intent.putExtra("autoRecord", autoRecord);
-                            intent.putExtra("commandsInverted", commandsInverted);
-                            intent.putExtra("joysticksInverted", joysticksInverted);
-                            intent.putExtra("joysticksFixed", joysticksFixed);
-                            intent.putExtra("linearSpeed", linearSpeed);
-                            intent.putExtra("panoramaAngle", panoramaAngle);
-                            intent.putExtra("panoramaPhotos", panoramaPhotos);
-                            intent.putExtra("panoramaVideo", panoramaVideo);
-                            intent.putExtra("rotationSpeed", rotationSpeed);
-
-                            startActivity(intent);
+                            commandsInvertedSwitch.setChecked(commandsInverted);
+                            joysticksFixedSwitch.setChecked(joysticksFixed);
+                            joysticksInvertedSwitch.setChecked(joysticksInverted);
                         }
-                    });
 
-                    AlertDialog alertDialog = dialogBuilder.create();
-                    alertDialog.show();
-                    alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.style_dialogs);
-                    alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.primary_high));
-                }
+                        dialogBuilder.setPositiveButton(R.string.validate, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                optionsHasBeenSet = true;
+
+                                autoRecord = autoRecordSwitch.isChecked();
+                                panoramaPhotos = panoramaPhotosSwitch.isChecked();
+                                panoramaVideo = panoramaVideoSwitch.isChecked();
+
+                                if(layoutResourceID == R.layout.drone_options) {
+                                    commandsInverted = commandsInvertedSwitch.isChecked();
+                                    joysticksFixed = joysticksFixedSwitch.isChecked();
+                                    joysticksInverted = joysticksInvertedSwitch.isChecked();
+                                }
+
+                                intent.putExtra(EXTRA_DEVICE_SERVICE, service);
+                                intent.putExtra("autoRecord", autoRecord);
+                                intent.putExtra("commandsInverted", commandsInverted);
+                                intent.putExtra("joysticksInverted", joysticksInverted);
+                                intent.putExtra("joysticksFixed", joysticksFixed);
+                                intent.putExtra("linearSpeed", linearSpeed);
+                                intent.putExtra("panoramaAngle", panoramaAngle);
+                                intent.putExtra("panoramaPhotos", panoramaPhotos);
+                                intent.putExtra("panoramaVideo", panoramaVideo);
+                                intent.putExtra("rotationSpeed", rotationSpeed);
+
+                                startActivity(intent);
+                            }
+                        });
+
+                        AlertDialog alertDialog = dialogBuilder.create();
+                        alertDialog.show();
+                        alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.style_dialogs);
+                        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.primary_high));
+                    }
             }
         });
 

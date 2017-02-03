@@ -7,10 +7,15 @@ import android.util.Log;
 
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_ANIMATIONS_FLIP_DIRECTION_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_GPSSTATE_HOMETYPEAVAILABILITYCHANGED_TYPE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_GPSSTATE_HOMETYPECHOSENCHANGED_TYPE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORD_VIDEOV2_RECORD_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_NAVIGATEHOMESTATECHANGED_REASON_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_NAVIGATEHOMESTATECHANGED_STATE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_COMMON_CALIBRATIONSTATE_MAGNETOCALIBRATIONAXISTOCALIBRATECHANGED_AXIS_ENUM;
 import com.parrot.arsdk.arcontroller.ARCONTROLLER_DEVICE_STATE_ENUM;
 import com.parrot.arsdk.arcontroller.ARCONTROLLER_DICTIONARY_KEY_ENUM;
 import com.parrot.arsdk.arcontroller.ARCONTROLLER_ERROR_ENUM;
@@ -45,7 +50,11 @@ public class Bebop2Drone {
     public interface Listener {
         void onAltitudeChanged(double altitude);
 
+        void onAxisForCalibrationChanged(ARCOMMANDS_COMMON_CALIBRATIONSTATE_MAGNETOCALIBRATIONAXISTOCALIBRATECHANGED_AXIS_ENUM axis);
+
         void onBatteryChargeChanged(int charge);
+
+        void onCameraSettingsChanged(float fov, float panMax, float panMin, float tiltMax, float tiltMin);
 
         void onCodecConfigured(ARControllerCodec codec);
 
@@ -57,13 +66,26 @@ public class Bebop2Drone {
 
         void onFrameReceived(ARFrame frame);
 
-        void onHorizonChanged(float roll);
+        void onGPSFixedStateChanged(byte fixed);
+
+        void onHomeTypeAvailabilityChanged(ARCOMMANDS_ARDRONE3_GPSSTATE_HOMETYPEAVAILABILITYCHANGED_TYPE_ENUM type, byte available);
+
+        void onHomeTypeChosenChanged(ARCOMMANDS_ARDRONE3_GPSSTATE_HOMETYPECHOSENCHANGED_TYPE_ENUM type);
+
+        void onHorizonChanged(float roll, float pitch, float yaw);
 
         void onMatchingMediasFound(int nbMedias);
+
+        void onMaxRotationSpeedChanged(float current, float min, float max);
+
+        void onNavigateHomeStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_NAVIGATEHOMESTATECHANGED_STATE_ENUM state,
+                                        ARCOMMANDS_ARDRONE3_PILOTINGSTATE_NAVIGATEHOMESTATECHANGED_REASON_ENUM reason);
 
         void onPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error);
 
         void onPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state);
+
+        void onResetHomeChanged(double latitude, double longitude, double altitude);
 
         void onSpeedChanged(double speed);
 
@@ -200,7 +222,13 @@ public class Bebop2Drone {
 
     public void setAutoRecordMode(boolean mode) {
         if (deviceController != null)
-            deviceController.getFeatureARDrone3().sendPictureSettingsVideoAutorecordSelection((byte) (mode ?  1 :  0), (byte) 0);
+            deviceController.getFeatureARDrone3().sendPictureSettingsVideoAutorecordSelection((byte) (mode ? 1 : 0), (byte) 0);
+    }
+
+    @SuppressWarnings("unused")
+    public void setCameraOrientation(float tilt) {
+        if (deviceController != null)
+            deviceController.getFeatureARDrone3().sendCameraOrientationV2(tilt, 0);
     }
 
     public void setFlag(byte flag) {
@@ -299,9 +327,19 @@ public class Bebop2Drone {
             listener.onAltitudeChanged(altitude);
     }
 
+    private void notifyAxisForCalibrationChanged(ARCOMMANDS_COMMON_CALIBRATIONSTATE_MAGNETOCALIBRATIONAXISTOCALIBRATECHANGED_AXIS_ENUM axis) {
+        for (Listener listener : listeners)
+            listener.onAxisForCalibrationChanged(axis);
+    }
+
     private void notifyBatteryChargeChanged(int charge) {
         for (Listener listener : listeners)
             listener.onBatteryChargeChanged(charge);
+    }
+
+    private void notifyCameraSettingsChanged(float fov, float panMax, float panMin, float tiltMax, float tiltMin) {
+        for (Listener listener : listeners)
+            listener.onCameraSettingsChanged(fov, panMax, panMin, tiltMax, tiltMin);
     }
 
     private void notifyCodecConfigured(ARControllerCodec codec) {
@@ -329,15 +367,41 @@ public class Bebop2Drone {
             listener.onFrameReceived(frame);
     }
 
-    private void notifyHorizonChanged(float roll) {
+    private void notifyGPSFixedStateChanged(byte fixed) {
+        for (Listener listener : listeners)
+            listener.onGPSFixedStateChanged(fixed);
+    }
+
+    private void notifyHomeTypeAvailabilityChanged(ARCOMMANDS_ARDRONE3_GPSSTATE_HOMETYPEAVAILABILITYCHANGED_TYPE_ENUM type, byte available) {
+        for (Listener listener : listeners)
+            listener.onHomeTypeAvailabilityChanged(type, available);
+    }
+
+    private void notifyHomeTypeChosenChanged(ARCOMMANDS_ARDRONE3_GPSSTATE_HOMETYPECHOSENCHANGED_TYPE_ENUM type) {
+        for (Listener listener : listeners)
+            listener.onHomeTypeChosenChanged(type);
+    }
+
+    private void notifyHorizonChanged(float roll, float pitch, float yaw) {
         for (Listener listener : listeners) {
-            listener.onHorizonChanged(roll);
+            listener.onHorizonChanged(roll, pitch, yaw);
         }
     }
 
     private void notifyMatchingMediasFound(int nbMedias) {
         for (Listener listener : listeners)
             listener.onMatchingMediasFound(nbMedias);
+    }
+
+    private void notifyMaxRotationSpeedChanged(float current, float min, float max) {
+        for (Listener listener : listeners)
+            listener.onMaxRotationSpeedChanged(current, min, max);
+    }
+
+    private void notifyNavigateHomeStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_NAVIGATEHOMESTATECHANGED_STATE_ENUM state,
+                                                ARCOMMANDS_ARDRONE3_PILOTINGSTATE_NAVIGATEHOMESTATECHANGED_REASON_ENUM reason) {
+        for (Listener listener : listeners)
+            listener.onNavigateHomeStateChanged(state, reason);
     }
 
     private void notifyPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error) {
@@ -348,6 +412,11 @@ public class Bebop2Drone {
     private void notifyPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state) {
         for (Listener listener : listeners)
             listener.onPilotingStateChanged(state);
+    }
+
+    private void notifyResetHomeChanged(double latitude, double longitude, double altitude) {
+        for (Listener listener : listeners)
+            listener.onResetHomeChanged(latitude, longitude, altitude);
     }
 
     private void notifySpeedChanged(double speed) {
@@ -448,10 +517,12 @@ public class Bebop2Drone {
                 ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
                 if (args != null) {
                     final float roll = (float) ((Double) args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_ATTITUDECHANGED_ROLL)).doubleValue();
+                    final float pitch = (float)((Double)args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_ATTITUDECHANGED_PITCH)).doubleValue();
+                    final float yaw = (float)((Double)args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_ATTITUDECHANGED_YAW)).doubleValue();
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            notifyHorizonChanged(roll);
+                            notifyHorizonChanged(roll, pitch, yaw);
                         }
                     });
                 }
@@ -484,7 +555,7 @@ public class Bebop2Drone {
                 }
             }
             // onRunIDChanged
-            else if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_COMMON_RUNSTATE_RUNIDCHANGED) && (elementDictionary != null)){
+            else if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_COMMON_RUNSTATE_RUNIDCHANGED) && (elementDictionary != null)) {
                 ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
                 if (args != null) {
                     final String runID = (String) args.get(ARFeatureCommon.ARCONTROLLER_DICTIONARY_KEY_COMMON_RUNSTATE_RUNIDCHANGED_RUNID);
@@ -521,6 +592,120 @@ public class Bebop2Drone {
                         @Override
                         public void run() {
                             notifyVideoStateChanged(state);
+                        }
+                    });
+                }
+            }
+            // onGPSFixedStateChanged
+            else if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_GPSSETTINGSSTATE_GPSFIXSTATECHANGED) && (elementDictionary != null)) {
+                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
+                if (args != null) {
+                    final byte fixed = (byte) ((Integer) args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_GPSSETTINGSSTATE_GPSFIXSTATECHANGED_FIXED)).intValue();
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyGPSFixedStateChanged(fixed);
+                        }
+                    });
+                }
+            }
+            // onAxisForCalibrationChanged
+            else if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_COMMON_CALIBRATIONSTATE_MAGNETOCALIBRATIONAXISTOCALIBRATECHANGED) && (elementDictionary != null)) {
+                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
+                if (args != null) {
+                    final ARCOMMANDS_COMMON_CALIBRATIONSTATE_MAGNETOCALIBRATIONAXISTOCALIBRATECHANGED_AXIS_ENUM axis = ARCOMMANDS_COMMON_CALIBRATIONSTATE_MAGNETOCALIBRATIONAXISTOCALIBRATECHANGED_AXIS_ENUM.getFromValue((Integer) args.get(ARFeatureCommon.ARCONTROLLER_DICTIONARY_KEY_COMMON_CALIBRATIONSTATE_MAGNETOCALIBRATIONAXISTOCALIBRATECHANGED_AXIS));
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyAxisForCalibrationChanged(axis);
+                        }
+                    });
+                }
+            }
+            // onNavigateHomeStateChanged
+            else if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_NAVIGATEHOMESTATECHANGED) && (elementDictionary != null)) {
+                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
+                if (args != null) {
+                    final ARCOMMANDS_ARDRONE3_PILOTINGSTATE_NAVIGATEHOMESTATECHANGED_STATE_ENUM state = ARCOMMANDS_ARDRONE3_PILOTINGSTATE_NAVIGATEHOMESTATECHANGED_STATE_ENUM.getFromValue((Integer) args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_NAVIGATEHOMESTATECHANGED_STATE));
+                    final ARCOMMANDS_ARDRONE3_PILOTINGSTATE_NAVIGATEHOMESTATECHANGED_REASON_ENUM reason = ARCOMMANDS_ARDRONE3_PILOTINGSTATE_NAVIGATEHOMESTATECHANGED_REASON_ENUM.getFromValue((Integer) args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_PILOTINGSTATE_NAVIGATEHOMESTATECHANGED_REASON));
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyNavigateHomeStateChanged(state, reason);
+                        }
+                    });
+                }
+            }
+            // onHomeTypeChosenChanged
+            else if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_GPSSTATE_HOMETYPECHOSENCHANGED) && (elementDictionary != null)) {
+                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
+                if (args != null) {
+                    final ARCOMMANDS_ARDRONE3_GPSSTATE_HOMETYPECHOSENCHANGED_TYPE_ENUM type = ARCOMMANDS_ARDRONE3_GPSSTATE_HOMETYPECHOSENCHANGED_TYPE_ENUM.getFromValue((Integer) args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_GPSSTATE_HOMETYPECHOSENCHANGED_TYPE));
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyHomeTypeChosenChanged(type);
+                        }
+                    });
+                }
+            }
+            // onHomeTypeAvailabilityChanged
+            else if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_GPSSTATE_HOMETYPEAVAILABILITYCHANGED) && (elementDictionary != null)) {
+                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
+                if (args != null) {
+                    final ARCOMMANDS_ARDRONE3_GPSSTATE_HOMETYPEAVAILABILITYCHANGED_TYPE_ENUM type = ARCOMMANDS_ARDRONE3_GPSSTATE_HOMETYPEAVAILABILITYCHANGED_TYPE_ENUM.getFromValue((Integer) args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_GPSSTATE_HOMETYPEAVAILABILITYCHANGED_TYPE));
+                    final byte available = (byte) ((Integer) args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_GPSSTATE_HOMETYPEAVAILABILITYCHANGED_AVAILABLE)).intValue();
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyHomeTypeAvailabilityChanged(type, available);
+                        }
+                    });
+                }
+            }
+            // onResetHomeChanged
+            else if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_GPSSETTINGSSTATE_RESETHOMECHANGED) && (elementDictionary != null)) {
+                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
+                if (args != null) {
+                    final double latitude = (double) args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_GPSSETTINGSSTATE_RESETHOMECHANGED_LATITUDE);
+                    final double longitude = (double) args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_GPSSETTINGSSTATE_RESETHOMECHANGED_LONGITUDE);
+                    final double altitude = (double) args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_GPSSETTINGSSTATE_RESETHOMECHANGED_ALTITUDE);
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyResetHomeChanged(latitude, longitude, altitude);
+                        }
+                    });
+                }
+            }
+            // onCameraSettingsChanged
+            else if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_COMMON_CAMERASETTINGSSTATE_CAMERASETTINGSCHANGED) && (elementDictionary != null)) {
+                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
+                if (args != null) {
+                    final float fov = (float) ((Double) args.get(ARFeatureCommon.ARCONTROLLER_DICTIONARY_KEY_COMMON_CAMERASETTINGSSTATE_CAMERASETTINGSCHANGED_FOV)).doubleValue();
+                    final float panMax = (float) ((Double) args.get(ARFeatureCommon.ARCONTROLLER_DICTIONARY_KEY_COMMON_CAMERASETTINGSSTATE_CAMERASETTINGSCHANGED_PANMAX)).doubleValue();
+                    final float panMin = (float) ((Double) args.get(ARFeatureCommon.ARCONTROLLER_DICTIONARY_KEY_COMMON_CAMERASETTINGSSTATE_CAMERASETTINGSCHANGED_PANMIN)).doubleValue();
+                    final float tiltMax = (float) ((Double) args.get(ARFeatureCommon.ARCONTROLLER_DICTIONARY_KEY_COMMON_CAMERASETTINGSSTATE_CAMERASETTINGSCHANGED_TILTMAX)).doubleValue();
+                    final float tiltMin = (float) ((Double) args.get(ARFeatureCommon.ARCONTROLLER_DICTIONARY_KEY_COMMON_CAMERASETTINGSSTATE_CAMERASETTINGSCHANGED_TILTMIN)).doubleValue();
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyCameraSettingsChanged(fov, panMax, panMin, tiltMax, tiltMin);
+                        }
+                    });
+                }
+            }
+            // onMaxRotationSpeedChanged
+            else if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ENUM.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_SPEEDSETTINGSSTATE_MAXROTATIONSPEEDCHANGED) && (elementDictionary != null)) {
+                ARControllerArgumentDictionary<Object> args = elementDictionary.get(ARControllerDictionary.ARCONTROLLER_DICTIONARY_SINGLE_KEY);
+                if (args != null) {
+                    final float current = (float) ((Double) args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_SPEEDSETTINGSSTATE_MAXROTATIONSPEEDCHANGED_CURRENT)).doubleValue();
+                    final float min = (float) ((Double) args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_SPEEDSETTINGSSTATE_MAXROTATIONSPEEDCHANGED_MIN)).doubleValue();
+                    final float max = (float) ((Double) args.get(ARFeatureARDrone3.ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_SPEEDSETTINGSSTATE_MAXROTATIONSPEEDCHANGED_MAX)).doubleValue();
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyMaxRotationSpeedChanged(current, min, max);
                         }
                     });
                 }

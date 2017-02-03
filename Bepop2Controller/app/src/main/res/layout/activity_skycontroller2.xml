@@ -17,9 +17,10 @@
         android:id="@+id/loadingLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/barLayout"
-        android:layout_toStartOf="@+id/panoramaButton"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="10dp"
         android:layout_toEndOf="@+id/downloadButton"
+        android:layout_toStartOf="@+id/backFlipButton"
         android:gravity="center">
 
         <ProgressBar
@@ -33,11 +34,12 @@
 
         <ImageView
             android:id="@+id/horizonImageView"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             app:srcCompat="@drawable/horizon"
             tools:ignore="ContentDescription"
-            android:layout_width="match_parent" />
+            android:visibility="invisible" />
 
     </RelativeLayout>
 
@@ -130,8 +132,9 @@
         android:id="@+id/emergencyButton"
         android:layout_width="100dp"
         android:layout_height="40dp"
-        android:layout_alignTop="@+id/panoramaButton"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
+        android:layout_marginBottom="10dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:background="@drawable/style_emergency"
@@ -144,45 +147,34 @@
         android:id="@+id/downloadButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/barLayout"
+        android:layout_alignParentBottom="true"
         android:layout_margin="10dp"
-        android:layout_toStartOf="@+id/flipButton"
+        android:layout_toEndOf="@+id/paramsButton"
         android:clickable="true"
         app:backgroundTint="@color/icon_background"
         app:fabSize="mini"
-        app:srcCompat="@drawable/ic_download" />
+        app:srcCompat="@drawable/ic_download"
+        tools:ignore="RelativeOverlap" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/flipButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/barLayout"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
         android:layout_margin="10dp"
-        android:layout_toStartOf="@+id/emergencyButton"
         android:clickable="true"
         app:backgroundTint="@color/icon_background"
         app:fabSize="mini"
         app:srcCompat="@drawable/ic_flip" />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/panoramaButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/barLayout"
-        android:layout_margin="10dp"
-        android:layout_toEndOf="@+id/paramsButton"
-        android:clickable="true"
-        app:backgroundTint="@color/icon_background"
-        app:fabSize="mini"
-        app:srcCompat="@drawable/ic_panorama" />
-
-    <android.support.design.widget.FloatingActionButton
         android:id="@+id/paramsButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/barLayout"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
         android:layout_margin="10dp"
-        android:layout_toEndOf="@+id/emergencyButton"
         android:clickable="true"
         app:backgroundTint="@color/icon_background"
         app:fabSize="mini"
@@ -192,20 +184,24 @@
         android:id="@+id/backFlipButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/flipButton"
-        android:layout_below="@+id/flipButton"
+        android:layout_alignParentBottom="true"
+        android:layout_alignTop="@+id/flipButton"
+        android:layout_marginBottom="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_toStartOf="@id/flipButton"
         android:clickable="true"
         android:visibility="invisible"
         app:backgroundTint="@color/icon_background"
         app:fabSize="mini"
-        app:srcCompat="@drawable/ic_back_flip" />
+        app:srcCompat="@drawable/ic_back_flip"
+        tools:ignore="RelativeOverlap" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/rightFlipButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/backFlipButton"
-        android:layout_toEndOf="@+id/backFlipButton"
+        android:layout_above="@+id/flipButton"
+        android:layout_alignEnd="@+id/flipButton"
         android:clickable="true"
         android:visibility="invisible"
         app:backgroundTint="@color/icon_background"
@@ -216,7 +212,7 @@
         android:id="@+id/leftFlipButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/backFlipButton"
+        android:layout_above="@+id/flipButton"
         android:layout_toStartOf="@+id/backFlipButton"
         android:clickable="true"
         android:visibility="invisible"
@@ -228,20 +224,14 @@
         android:id="@+id/frontFlipButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/rightFlipButton"
+        android:layout_above="@+id/rightFlipButton"
+        android:layout_marginBottom="10dp"
         android:layout_toEndOf="@+id/leftFlipButton"
         android:clickable="true"
         android:visibility="invisible"
         app:backgroundTint="@color/icon_background"
         app:fabSize="mini"
-        app:srcCompat="@drawable/ic_front_flip" />
-
-    <Chronometer
-        android:id="@+id/chronometer"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_below="@+id/emergencyButton"
-        android:layout_centerHorizontal="true"
-        android:visibility="invisible" />
+        app:srcCompat="@drawable/ic_front_flip"
+        android:layout_marginStart="10dp" />
 
 </RelativeLayout>

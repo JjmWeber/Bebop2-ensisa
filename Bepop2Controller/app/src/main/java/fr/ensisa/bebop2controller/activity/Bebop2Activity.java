@@ -27,9 +27,14 @@ import android.widget.Toast;
 
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_ANIMATIONS_FLIP_DIRECTION_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_GPSSETTINGS_HOMETYPE_TYPE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_GPSSTATE_HOMETYPEAVAILABILITYCHANGED_TYPE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_GPSSTATE_HOMETYPECHOSENCHANGED_TYPE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_NAVIGATEHOMESTATECHANGED_REASON_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_ARDRONE3_PILOTINGSTATE_NAVIGATEHOMESTATECHANGED_STATE_ENUM;
+import com.parrot.arsdk.arcommands.ARCOMMANDS_COMMON_CALIBRATIONSTATE_MAGNETOCALIBRATIONAXISTOCALIBRATECHANGED_AXIS_ENUM;
 import com.parrot.arsdk.arcontroller.ARCONTROLLER_DEVICE_STATE_ENUM;
 import com.parrot.arsdk.arcontroller.ARControllerCodec;
 import com.parrot.arsdk.arcontroller.ARFrame;
@@ -55,6 +60,7 @@ public class Bebop2Activity extends AppCompatActivity {
 
     private boolean autoRecord = true;
     private boolean commandsInverted = false;
+    private boolean isFirstCommand = true;
     private boolean isEmergency = false;
     private boolean isFlipping = false;
     private boolean isPassed = false;
@@ -73,6 +79,9 @@ public class Bebop2Activity extends AppCompatActivity {
     private double gaz = 0, pitch = 0, roll = 0, yaw = 0;
     private double panoramaAngle = 360;
     private Chronometer chrono;
+
+    // For the camera's rotation
+    // private float minTilt = 10, maxTilt = 200, tiltStep = 1;
 
     private Bebop2VideoView videoView;
     private Button takeOffAndLandBt;
@@ -145,8 +154,10 @@ public class Bebop2Activity extends AppCompatActivity {
             connectionProgressDialog.setCancelable(false);
             connectionProgressDialog.show();
 
-            if (!bebop2Drone.connect())
+            if (!bebop2Drone.connect()) {
                 finish();
+                horizonImageView.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -674,6 +685,29 @@ public class Bebop2Activity extends AppCompatActivity {
             }
         });
 
+        // For the camera's rotation
+        /* SeekBar cameraBar = (SeekBar) findViewById(R.id.cameraBar);
+        cameraBar.setMax((int)((maxTilt - minTilt) / tiltStep ));
+        cameraBar.setOnSeekBarChangeListener(
+                new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+
+                    }
+
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress,
+                                                  boolean fromUser) {
+                        bebop2Drone.setCameraOrientation(-(minTilt + (progress * tiltStep)));
+                    }
+                }
+        );*/
+
         chrono = (Chronometer) findViewById(R.id.chronometer);
         chrono.setVisibility(View.INVISIBLE);
         chrono.setBase(SystemClock.elapsedRealtime());
@@ -704,18 +738,13 @@ public class Bebop2Activity extends AppCompatActivity {
     @SuppressLint("DefaultLocale")
     private final Bebop2Drone.Listener bebopListener = new Bebop2Drone.Listener() {
         @Override
-        public void onDroneConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state) {
-            switch (state) {
-                case ARCONTROLLER_DEVICE_STATE_RUNNING:
-                    connectionProgressDialog.dismiss();
-                    break;
-                case ARCONTROLLER_DEVICE_STATE_STOPPED:
-                    connectionProgressDialog.dismiss();
-                    finish();
-                    break;
-                default:
-                    break;
-            }
+        public void onAltitudeChanged(double altitudeValue) {
+            altitudeTextView.setText(String.format(" %.1f m", altitudeValue));
+        }
+
+        @Override
+        public void onAxisForCalibrationChanged(ARCOMMANDS_COMMON_CALIBRATIONSTATE_MAGNETOCALIBRATIONAXISTOCALIBRATECHANGED_AXIS_ENUM axis) {
+
         }
 
         @Override
@@ -762,67 +791,8 @@ public class Bebop2Activity extends AppCompatActivity {
         }
 
         @Override
-        public void onSpeedChanged(double speed) {
-            speedTextView.setText(String.format("  %.1f m/s", speed));
-        }
+        public void onCameraSettingsChanged(float fov, float panMax, float panMin, float tiltMax, float tiltMin) {
 
-        @Override
-        public void onHorizonChanged(float roll) {
-            final RotateAnimation rotateAnim = new RotateAnimation(currentHorizon, roll * HORIZON_ADJUSTMENT,
-                    RotateAnimation.RELATIVE_TO_SELF, 0.5f,
-                    RotateAnimation.RELATIVE_TO_SELF, 0.5f);
-
-            rotateAnim.setDuration(200);
-            rotateAnim.setFillAfter(true);
-            horizonImageView.startAnimation(rotateAnim);
-            currentHorizon = roll * HORIZON_ADJUSTMENT;
-        }
-
-        @Override
-        public void onAltitudeChanged(double altitudeValue) {
-            altitudeTextView.setText(String.format(" %.1f m", altitudeValue));
-        }
-
-        @Override
-        public void onPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state) {
-            switch (state) {
-                case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_LANDED:
-                    takeOffAndLandBt.setText(R.string.take_off);
-                    takeOffAndLandBt.setEnabled(true);
-                    downloadBt.setEnabled(true);
-                    break;
-                case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING:
-                case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING:
-                    takeOffAndLandBt.setText(R.string.land);
-                    takeOffAndLandBt.setEnabled(true);
-                    downloadBt.setEnabled(false);
-                    break;
-                default:
-                    takeOffAndLandBt.setEnabled(false);
-                    downloadBt.setEnabled(false);
-            }
-        }
-
-        @Override
-        public void onPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error) {
-            Toast.makeText(getApplicationContext(), R.string.picture_taken, Toast.LENGTH_SHORT).show();
-            Log.i(TAG, "Picture has been taken");
-        }
-
-        @Override
-        public void onVideoStateChanged(ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_ENUM state) {
-            switch (state) {
-                case ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_STARTED:
-                    videoBt.setImageDrawable(Bebop2Activity.this.getDrawable(R.drawable.ic_stop_video));
-                    Toast.makeText(getApplicationContext(), R.string.video_started, Toast.LENGTH_SHORT).show();
-                    isRecording = true;
-                    Log.i(TAG, "Video started recording");
-                case ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_STOPPED:
-                    videoBt.setImageDrawable(Bebop2Activity.this.getDrawable(R.drawable.ic_video));
-                    Toast.makeText(getApplicationContext(), R.string.video_stopped, Toast.LENGTH_SHORT).show();
-                    isRecording = false;
-                    Log.i(TAG, "Video stopped recording");
-            }
         }
 
         @Override
@@ -831,8 +801,66 @@ public class Bebop2Activity extends AppCompatActivity {
         }
 
         @Override
+        public void onDownloadCompleted(String mediaName) {
+            currentDownloadIndex++;
+            downloadProgressDialog.setSecondaryProgress(currentDownloadIndex * 100);
+
+            if (currentDownloadIndex > nbMaxDownload) {
+                downloadProgressDialog.dismiss();
+                downloadProgressDialog = null;
+            }
+        }
+
+        @Override
+        public void onDownloadProgressed(String mediaName, int progress) {
+            downloadProgressDialog.setProgress(((currentDownloadIndex - 1) * 100) + progress);
+        }
+
+        @Override
+        public void onDroneConnectionChanged(ARCONTROLLER_DEVICE_STATE_ENUM state) {
+            switch (state) {
+                case ARCONTROLLER_DEVICE_STATE_RUNNING:
+                    connectionProgressDialog.dismiss();
+                    break;
+                case ARCONTROLLER_DEVICE_STATE_STOPPED:
+                    connectionProgressDialog.dismiss();
+                    finish();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        @Override
         public void onFrameReceived(ARFrame frame) {
             videoView.displayFrame(frame);
+        }
+
+        @Override
+        public void onGPSFixedStateChanged(byte fixed) {
+
+        }
+
+        @Override
+        public void onHomeTypeAvailabilityChanged(ARCOMMANDS_ARDRONE3_GPSSTATE_HOMETYPEAVAILABILITYCHANGED_TYPE_ENUM type, byte available) {
+
+        }
+
+        @Override
+        public void onHomeTypeChosenChanged(ARCOMMANDS_ARDRONE3_GPSSTATE_HOMETYPECHOSENCHANGED_TYPE_ENUM type) {
+
+        }
+
+        @Override
+        public void onHorizonChanged(float roll, float pitch, float yaw) {
+            final RotateAnimation rotateAnim = new RotateAnimation(currentHorizon, roll * HORIZON_ADJUSTMENT,
+                    RotateAnimation.RELATIVE_TO_SELF, 0.5f,
+                    RotateAnimation.RELATIVE_TO_SELF, 0.5f);
+
+            rotateAnim.setDuration(200);
+            rotateAnim.setFillAfter(true);
+            horizonImageView.startAnimation(rotateAnim);
+            currentHorizon = roll * HORIZON_ADJUSTMENT;
         }
 
         @Override
@@ -862,18 +890,67 @@ public class Bebop2Activity extends AppCompatActivity {
         }
 
         @Override
-        public void onDownloadProgressed(String mediaName, int progress) {
-            downloadProgressDialog.setProgress(((currentDownloadIndex - 1) * 100) + progress);
+        public void onMaxRotationSpeedChanged(float current, float min, float max) {
+
         }
 
         @Override
-        public void onDownloadCompleted(String mediaName) {
-            currentDownloadIndex++;
-            downloadProgressDialog.setSecondaryProgress(currentDownloadIndex * 100);
+        public void onNavigateHomeStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_NAVIGATEHOMESTATECHANGED_STATE_ENUM state, ARCOMMANDS_ARDRONE3_PILOTINGSTATE_NAVIGATEHOMESTATECHANGED_REASON_ENUM reason) {
 
-            if (currentDownloadIndex > nbMaxDownload) {
-                downloadProgressDialog.dismiss();
-                downloadProgressDialog = null;
+        }
+
+        @Override
+        public void onPictureTaken(ARCOMMANDS_ARDRONE3_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM error) {
+            Toast.makeText(getApplicationContext(), R.string.picture_taken, Toast.LENGTH_SHORT).show();
+            Log.i(TAG, "Picture has been taken");
+        }
+
+        @Override
+        public void onPilotingStateChanged(ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM state) {
+            switch (state) {
+                case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_LANDED:
+                    takeOffAndLandBt.setText(R.string.take_off);
+                    takeOffAndLandBt.setEnabled(true);
+                    downloadBt.setEnabled(true);
+                    break;
+                case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING:
+                case ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING:
+                    takeOffAndLandBt.setText(R.string.land);
+                    takeOffAndLandBt.setEnabled(true);
+                    downloadBt.setEnabled(false);
+                    break;
+                default:
+                    takeOffAndLandBt.setEnabled(false);
+                    downloadBt.setEnabled(false);
+            }
+        }
+
+        @Override
+        public void onResetHomeChanged(double latitude, double longitude, double altitude) {
+
+        }
+
+        @Override
+        public void onSpeedChanged(double speed) {
+            speedTextView.setText(String.format("  %.1f m/s", speed));
+        }
+
+        @Override
+        public void onVideoStateChanged(ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_ENUM state) {
+            switch (state) {
+                case ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_STARTED:
+                    videoBt.setImageDrawable(Bebop2Activity.this.getDrawable(R.drawable.ic_stop_video));
+                    Toast.makeText(getApplicationContext(), R.string.video_started, Toast.LENGTH_SHORT).show();
+                    isRecording = true;
+                    Log.i(TAG, "Video started recording");
+                case ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_STOPPED:
+                    videoBt.setImageDrawable(Bebop2Activity.this.getDrawable(R.drawable.ic_video));
+                    if(isFirstCommand)
+                        isFirstCommand = false;
+                    else
+                        Toast.makeText(getApplicationContext(), R.string.video_stopped, Toast.LENGTH_SHORT).show();
+                    isRecording = false;
+                    Log.i(TAG, "Video stopped recording");
             }
         }
     };

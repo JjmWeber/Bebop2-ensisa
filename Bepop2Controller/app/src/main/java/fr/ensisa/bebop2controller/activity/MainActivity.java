@@ -160,24 +160,16 @@ public class MainActivity extends AppCompatActivity {
                         dialogBuilder.setView(dialogView);
 
                         autoRecordSwitch = (Switch) dialogView.findViewById(R.id.autoRecordSwitch);
-                        panoramaPhotosSwitch = (Switch) dialogView.findViewById(R.id.panoramaPhotosSwitch);
-                        panoramaVideoSwitch = (Switch) dialogView.findViewById(R.id.panoramaVideoSwitch);
-
                         autoRecordSwitch.setChecked(autoRecord);
-                        panoramaPhotosSwitch.setChecked(panoramaPhotos);
-                        panoramaVideoSwitch.setChecked(panoramaVideo);
 
                         SeekBar linearSpeedBar = (SeekBar) dialogView.findViewById(R.id.linearSpeedBar);
                         SeekBar rotationSpeedBar = (SeekBar) dialogView.findViewById(R.id.rotationSpeedBar);
-                        SeekBar panoramaAngleBar = (SeekBar) dialogView.findViewById(R.id.panoramaAngleBar);
 
                         linearSpeedText = (TextView) dialogView.findViewById(R.id.linearSpeedText);
                         rotationSpeedText = (TextView) dialogView.findViewById(R.id.rotationSpeedText);
-                        panoramaAngleText = (TextView) dialogView.findViewById(R.id.panoramaAngleText);
 
                         linearSpeedText.setText(getString(R.string.percentage, (int) linearSpeed));
                         rotationSpeedText.setText(getString(R.string.percentage, (int) rotationSpeed));
-                        panoramaAngleText.setText(getString(R.string.angle, (int) panoramaAngle));
 
                         linearSpeedBar.setMax((MAX_LINEAR_SPEED - MIN_LINEAR_SPEED) / STEP_LINEAR_SPEED);
                         linearSpeedBar.setProgress((int) linearSpeed - MIN_LINEAR_SPEED);
@@ -225,37 +217,45 @@ public class MainActivity extends AppCompatActivity {
                                 }
                         );
 
-                        panoramaAngleBar.setMax((MAX_ANGLE - MIN_ANGLE) / STEP_ANGLE);
-                        panoramaAngleBar.setProgress((int) panoramaAngle - MIN_ANGLE);
-                        panoramaAngleBar.setOnSeekBarChangeListener(
-                                new SeekBar.OnSeekBarChangeListener() {
-                                    @Override
-                                    public void onStopTrackingTouch(SeekBar seekBar) {
-
-                                    }
-
-                                    @Override
-                                    public void onStartTrackingTouch(SeekBar seekBar) {
-
-                                    }
-
-                                    @Override
-                                    public void onProgressChanged(SeekBar seekBar, int progress,
-                                                                  boolean fromUser) {
-                                        panoramaAngle = (MIN_ANGLE + (progress * STEP_ANGLE));
-                                        panoramaAngleText.setText(getString(R.string.angle, (int) panoramaAngle));
-                                    }
-                                }
-                        );
-
                         if(layoutResourceID == R.layout.drone_options) {
                             commandsInvertedSwitch = (Switch) dialogView.findViewById(R.id.commandsInverted);
                             joysticksFixedSwitch = (Switch) dialogView.findViewById(R.id.joysticksFixed);
                             joysticksInvertedSwitch = (Switch) dialogView.findViewById(R.id.joysticksInverted);
+                            panoramaPhotosSwitch = (Switch) dialogView.findViewById(R.id.panoramaPhotosSwitch);
+                            panoramaVideoSwitch = (Switch) dialogView.findViewById(R.id.panoramaVideoSwitch);
 
                             commandsInvertedSwitch.setChecked(commandsInverted);
                             joysticksFixedSwitch.setChecked(joysticksFixed);
                             joysticksInvertedSwitch.setChecked(joysticksInverted);
+                            panoramaPhotosSwitch.setChecked(panoramaPhotos);
+                            panoramaVideoSwitch.setChecked(panoramaVideo);
+
+                            panoramaAngleText = (TextView) dialogView.findViewById(R.id.panoramaAngleText);
+                            panoramaAngleText.setText(getString(R.string.angle, (int) panoramaAngle));
+
+                            SeekBar panoramaAngleBar = (SeekBar) dialogView.findViewById(R.id.panoramaAngleBar);
+                            panoramaAngleBar.setMax((MAX_ANGLE - MIN_ANGLE) / STEP_ANGLE);
+                            panoramaAngleBar.setProgress((int) panoramaAngle - MIN_ANGLE);
+                            panoramaAngleBar.setOnSeekBarChangeListener(
+                                    new SeekBar.OnSeekBarChangeListener() {
+                                        @Override
+                                        public void onStopTrackingTouch(SeekBar seekBar) {
+
+                                        }
+
+                                        @Override
+                                        public void onStartTrackingTouch(SeekBar seekBar) {
+
+                                        }
+
+                                        @Override
+                                        public void onProgressChanged(SeekBar seekBar, int progress,
+                                                                      boolean fromUser) {
+                                            panoramaAngle = (MIN_ANGLE + (progress * STEP_ANGLE));
+                                            panoramaAngleText.setText(getString(R.string.angle, (int) panoramaAngle));
+                                        }
+                                    }
+                            );
                         }
 
                         dialogBuilder.setPositiveButton(R.string.validate, new DialogInterface.OnClickListener() {
@@ -264,13 +264,13 @@ public class MainActivity extends AppCompatActivity {
                                 optionsHasBeenSet = true;
 
                                 autoRecord = autoRecordSwitch.isChecked();
-                                panoramaPhotos = panoramaPhotosSwitch.isChecked();
-                                panoramaVideo = panoramaVideoSwitch.isChecked();
 
                                 if(layoutResourceID == R.layout.drone_options) {
                                     commandsInverted = commandsInvertedSwitch.isChecked();
                                     joysticksFixed = joysticksFixedSwitch.isChecked();
                                     joysticksInverted = joysticksInvertedSwitch.isChecked();
+                                    panoramaPhotos = panoramaPhotosSwitch.isChecked();
+                                    panoramaVideo = panoramaVideoSwitch.isChecked();
                                 }
 
                                 intent.putExtra(EXTRA_DEVICE_SERVICE, service);
@@ -437,6 +437,13 @@ public class MainActivity extends AppCompatActivity {
                 alertDialog.show();
                 alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.style_dialogs);
                 alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.primary_high));
+            }
+        });
+
+        findViewById(R.id.updateButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                recreate();
             }
         });
     }

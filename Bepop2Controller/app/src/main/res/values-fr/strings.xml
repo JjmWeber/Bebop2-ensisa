@@ -20,7 +20,7 @@
     <string name="help_lock">Faites un long clic pour déverrouiller le bouton d\'urgence</string>
     <string name="help_panorama">Faire un panorama</string>
     <string name="help_settings">Changer les paramètres de l\'application</string>
-    <string name="help_text">Pour commencer à piloter un drone, cliquez sur un élément de la liste. Si elle est vide, vérifiez que vous êtes bien connecté par wifi à un drone ou par usb à un contrôleur, puis fermez et relancez l\'application. Notez que cette application ne peut détecter que les drones Bebop2 et les contrôleurs SkyController2 de Parrot.</string>
+    <string name="help_text">Pour commencer à piloter un drone, cliquez sur un élément de la liste. Si elle est vide, vérifiez que vous êtes bien connecté par wifi à un drone ou par usb à un contrôleur, puis cliquez sur le bouton d\'actualisation. Notez que cette application ne peut détecter que les drones Bebop2 et les contrôleurs SkyController2 de Parrot.</string>
     <string name="help_video">Démarrer ou arrêter une vidéo</string>
     <string name="hold_on">Maintenez pour déverrouiller</string>
     <string name="joysticks_fixed">Joysticks Fixes</string>

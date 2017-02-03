@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -14,7 +13,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.RotateAnimation;
-import android.widget.Chronometer;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
@@ -42,24 +40,17 @@ public class SkyController2Activity extends AppCompatActivity {
 
     private static final int STEP_LINEAR_SPEED = 1, MIN_LINEAR_SPEED = 20, MAX_LINEAR_SPEED = 100;
     private static final int STEP_ROTATION_SPEED = 1, MIN_ROTATION_SPEED = 20, MAX_ROTATION_SPEED = 200;
-    private static final int STEP_ANGLE = 1, MIN_ANGLE = 90, MAX_ANGLE = 360;
-    private static final int TIME = 18;
     private static final float HORIZON_ADJUSTMENT = 56;
 
     private SkyController2Drone skyController2Drone;
 
     private boolean autoRecord = true;
+    private boolean isFirstCommand = true;
     private boolean isFlipping = false;
-    private boolean panoramaPhotos = true;
-    private boolean panoramaStarted = false;
-    private boolean panoramaVideo = true;
 
-    private int count = 0;
     private int currentDownloadIndex, nbMaxDownload;
     private float currentHorizon = 0;
     private float linearSpeed = 20, rotationSpeed = 20;
-    private double panoramaAngle = 360;
-    private Chronometer chrono;
 
     private Bebop2VideoView videoView;
     private FloatingActionButton backFlipBt, downloadBt,
@@ -69,8 +60,7 @@ public class SkyController2Activity extends AppCompatActivity {
     private ProgressDialog connectionProgressDialog;
     private ProgressDialog downloadProgressDialog;
     private TextView droneBatteryTextView, controllerBatteryTextView,
-            altitudeTextView, speedTextView, linearSpeedText, rotationSpeedText,
-            panoramaAngleText;
+            altitudeTextView, speedTextView, linearSpeedText, rotationSpeedText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,17 +72,11 @@ public class SkyController2Activity extends AppCompatActivity {
             if (extras != null) {
                 autoRecord = extras.getBoolean("autoRecord");
                 linearSpeed = extras.getFloat("linearSpeed");
-                panoramaAngle = extras.getDouble("panoramaAngle");
-                panoramaPhotos = extras.getBoolean("panoramaPhotos");
-                panoramaVideo = extras.getBoolean("panoramaVideo");
                 rotationSpeed = extras.getFloat("rotationSpeed");
             }
         } else {
             autoRecord = (boolean) savedInstanceState.getSerializable("autoRecord");
             linearSpeed = (float) savedInstanceState.getSerializable("linearSpeed");
-            panoramaAngle = (double) savedInstanceState.getSerializable("panoramaAngle");
-            panoramaPhotos = (boolean) savedInstanceState.getSerializable("panoramaPhotos");
-            panoramaVideo = (boolean) savedInstanceState.getSerializable("panoramaVideo");
             rotationSpeed = (float) savedInstanceState.getSerializable("rotationSpeed");
         }
 
@@ -117,8 +101,10 @@ public class SkyController2Activity extends AppCompatActivity {
             connectionProgressDialog.setCancelable(false);
             connectionProgressDialog.show();
 
-            if (!skyController2Drone.connect())
+            if (!skyController2Drone.connect()) {
                 finish();
+                horizonImageView.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -234,45 +220,22 @@ public class SkyController2Activity extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.panoramaButton).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                count = 0;
-                panoramaStarted = true;
-                skyController2Drone.setRotationSpeed((float) 20);
-
-                skyController2Drone.setFlag((byte) 0);
-                if (panoramaVideo) {
-                    skyController2Drone.stopVideo();
-                    skyController2Drone.startVideo();
-                }
-                skyController2Drone.setYaw((byte) 100);
-                chrono.stop();
-                chrono.start();
-            }
-        });
-
         findViewById(R.id.paramsButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(new ContextThemeWrapper(SkyController2Activity.this, R.style.AppTheme));
                 LayoutInflater inflater = SkyController2Activity.this.getLayoutInflater();
-                final View dialogView = inflater.inflate(R.layout.drone_options, null);
+                final View dialogView = inflater.inflate(R.layout.controller_options, null);
                 dialogBuilder.setView(dialogView);
 
                 final Switch autoRecordSwitch = (Switch) dialogView.findViewById(R.id.autoRecordSwitch);
-                final Switch panoramaPhotosSwitch = (Switch) dialogView.findViewById(R.id.panoramaPhotosSwitch);
-                final Switch panoramaVideoSwitch = (Switch) dialogView.findViewById(R.id.panoramaVideoSwitch);
 
                 autoRecordSwitch.setChecked(autoRecord);
-                panoramaPhotosSwitch.setChecked(panoramaPhotos);
-                panoramaVideoSwitch.setChecked(panoramaVideo);
 
                 dialogBuilder.setPositiveButton(R.string.validate, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         autoRecord = autoRecordSwitch.isChecked();
-                        panoramaPhotos = panoramaPhotosSwitch.isChecked();
-                        panoramaVideo = panoramaVideoSwitch.isChecked();
 
                         skyController2Drone.setLinearSpeed(linearSpeed);
                         skyController2Drone.setRotationSpeed(rotationSpeed);
@@ -281,15 +244,12 @@ public class SkyController2Activity extends AppCompatActivity {
 
                 SeekBar linearSpeedBar = (SeekBar) dialogView.findViewById(R.id.linearSpeedBar);
                 SeekBar rotationSpeedBar = (SeekBar) dialogView.findViewById(R.id.rotationSpeedBar);
-                SeekBar panoramaAngleBar = (SeekBar) dialogView.findViewById(R.id.panoramaAngleBar);
 
                 linearSpeedText = (TextView) dialogView.findViewById(R.id.linearSpeedText);
                 rotationSpeedText = (TextView) dialogView.findViewById(R.id.rotationSpeedText);
-                panoramaAngleText = (TextView) dialogView.findViewById(R.id.panoramaAngleText);
 
                 linearSpeedText.setText(getString(R.string.percentage, (int) linearSpeed));
                 rotationSpeedText.setText(getString(R.string.percentage, (int) rotationSpeed));
-                panoramaAngleText.setText(getString(R.string.angle, (int) panoramaAngle));
 
                 linearSpeedBar.setMax((MAX_LINEAR_SPEED - MIN_LINEAR_SPEED) / STEP_LINEAR_SPEED);
                 linearSpeedBar.setProgress((int) linearSpeed - MIN_LINEAR_SPEED);
@@ -337,60 +297,11 @@ public class SkyController2Activity extends AppCompatActivity {
                         }
                 );
 
-                panoramaAngleBar.setMax((MAX_ANGLE - MIN_ANGLE) / STEP_ANGLE);
-                panoramaAngleBar.setProgress((int) panoramaAngle - MIN_ANGLE);
-                panoramaAngleBar.setOnSeekBarChangeListener(
-                        new SeekBar.OnSeekBarChangeListener() {
-                            @Override
-                            public void onStopTrackingTouch(SeekBar seekBar) {
-
-                            }
-
-                            @Override
-                            public void onStartTrackingTouch(SeekBar seekBar) {
-
-                            }
-
-                            @Override
-                            public void onProgressChanged(SeekBar seekBar, int progress,
-                                                          boolean fromUser) {
-                                panoramaAngle = (MIN_ANGLE + (progress * STEP_ANGLE));
-                                panoramaAngleText.setText(getString(R.string.angle, (int) panoramaAngle));
-                            }
-                        }
-                );
-
                 AlertDialog alertDialog = dialogBuilder.create();
                 alertDialog.show();
                 alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.style_dialogs);
                 alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.primary_high));
             }
-        });
-
-        chrono = (Chronometer) findViewById(R.id.chronometer);
-        chrono.setVisibility(View.INVISIBLE);
-        chrono.setBase(SystemClock.elapsedRealtime());
-        chrono.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
-            @Override
-            public void onChronometerTick(Chronometer chronometer) {
-                int timeRotate = (int) (panoramaAngle * TIME) / 360;
-
-                if (count == timeRotate) {
-                    skyController2Drone.setYaw((byte) 0);
-                    if (panoramaVideo) {
-                        skyController2Drone.stopVideo();
-                        if (autoRecord)
-                            skyController2Drone.startVideo();
-                    }
-                    skyController2Drone.setRotationSpeed(rotationSpeed);
-                }
-                if (panoramaPhotos) {
-                    if (count % 2 == 0 && count < timeRotate && panoramaStarted)
-                        skyController2Drone.takePicture();
-                }
-                count++;
-            }
-
         });
 
         loadingAnimation = (ProgressBar)findViewById(R.id.loadingAnimation);
@@ -617,7 +528,10 @@ public class SkyController2Activity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), R.string.video_started, Toast.LENGTH_SHORT).show();
                     Log.i(TAG, "Video started recording");
                 case ARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE_STOPPED:
-                    Toast.makeText(getApplicationContext(), R.string.video_stopped, Toast.LENGTH_SHORT).show();
+                    if(isFirstCommand)
+                        isFirstCommand = false;
+                    else
+                        Toast.makeText(getApplicationContext(), R.string.video_stopped, Toast.LENGTH_SHORT).show();
                     Log.i(TAG, "Video stopped recording");
             }
         }

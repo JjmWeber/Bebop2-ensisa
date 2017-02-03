@@ -26,7 +26,7 @@
     <string name="help_lock">Make a long press to unlock the emergency button</string>
     <string name="help_panorama">Make a panorama</string>
     <string name="help_settings">Set the parameters of the application</string>
-    <string name="help_text">To start using a drone, click on an element in the list. If the list is empty, verify that you\'re connected by wifi to a drone, or by usb to a controller, then close and restart the application. Please note that this application can only detect Bebop2 drones and SkyController2 controllers from Parrot.</string>
+    <string name="help_text">To start using a drone, click on an element in the list. If the list is empty, verify that you\'re connected by wifi to a drone, or by usb to a controller, then click on the update button. Please note that this application can only detect Bebop2 drones and SkyController2 controllers from Parrot.</string>
     <string name="help_video">Start or stop the video</string>
     <string name="hold_on">Hold to unlock</string>
     <string name="joysticks_fixed">Fixed Joysticks</string>
@@ -34,9 +34,9 @@
     <string name="land">Land</string>
     <string name="linear_speed">Linear Speed</string>
     <string name="missing_permission">At least one permission is missing</string>
-    <string name="no_distance" translatable="false">\ - m</string>
-    <string name="no_percentage" translatable="false">\ - %</string>
-    <string name="no_speed" translatable="false">\ \ - m/s</string>
+    <string name="no_distance" translatable="false">\u0020- m</string>
+    <string name="no_percentage" translatable="false">\u0020- %</string>
+    <string name="no_speed" translatable="false">\u0020- m/s</string>
     <string name="options">Options</string>
     <string name="panorama_angle">Panorama\'s angle</string>
     <string name="panorama_photos">Panorama with photos</string>

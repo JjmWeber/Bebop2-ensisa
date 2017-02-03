@@ -343,6 +343,14 @@
         app:fabSize="mini"
         app:srcCompat="@drawable/ic_front_flip" />
 
+    <!--<SeekBar
+        android:id="@+id/cameraBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/leftJoystickDownView"
+        android:layout_toEndOf="@+id/flipButton"
+        android:layout_toStartOf="@+id/paramsButton" />-->
+
     <Chronometer
         android:id="@+id/chronometer"
         android:layout_width="0dp"
@@ -358,6 +366,7 @@
         android:layout_centerVertical="true"
         android:layout_toEndOf="@+id/downloadButton"
         android:layout_toStartOf="@+id/panoramaButton"
+        android:visibility="invisible"
         app:srcCompat="@drawable/horizon"
         tools:ignore="ContentDescription" />
 
